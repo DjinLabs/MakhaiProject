@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Army.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Singleton.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fight_simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_simulator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -55,7 +59,7 @@
       <workItem from="1636691703943" duration="2883000" />
       <workItem from="1636702025450" duration="977000" />
       <workItem from="1636703011540" duration="2478000" />
-      <workItem from="1636811207008" duration="678000" />
+      <workItem from="1636811207008" duration="8713000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -71,7 +75,14 @@
       <option name="project" value="LOCAL" />
       <updated>1636705464318</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Minor changes">
+      <created>1636824095040</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1636824095040</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -92,6 +103,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created Tribes.py for start with classing" />
     <MESSAGE value="Refactor of Tribes.py and changes in main" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor of Tribes.py and changes in main" />
+    <MESSAGE value="Minor changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor changes" />
   </component>
 </project>
