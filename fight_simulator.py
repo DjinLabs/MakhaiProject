@@ -1,9 +1,7 @@
 import streamlit as st
 import random
 
-import Tribes as Tribes
 from Tribes import TribeManager
-from Tribes import Tribe
 
 st.set_page_config(layout='wide')
 
