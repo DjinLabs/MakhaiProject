@@ -1,10 +1,8 @@
-import streamlit as st
 import random
+import streamlit as st
 
-from Tribes import TribeManager, tribe_manager
-from Battle import BattleManager, battle_manager
-from Army import ArmyManager, army_manager
-
+from Battle import battle_manager
+from Tribes import tribe_manager
 
 st.set_page_config(layout='wide')
 
@@ -17,17 +15,25 @@ st.title('TeamFight Tokens')
 
 st.subheader('Fight simulator')
 
-# Create Tribes from Text Input with  Placeholder pre-fill
-cols = st.columns([.75, 0.25, 1, 1, 1, 1])
+# Input container
+with st.container():
 
-with cols[0]:
-    tribes_names_input = [st.text_input(f'Tribe {i + 1}', TRIBE_NAMES_PLACEHOLDER[i])
-                          for i, tribe in enumerate(TRIBE_NAMES_PLACEHOLDER)]
+    # Create Tribes from Text Input with  Placeholder pre-fill
+    cols = st.columns([.75, 0.25, 1, 1, 1, 1])
 
-    tribe_manager.create_tribes(tribes_names_input)
+    with cols[0]:
+        tribes_names_input = [st.text_input(f'Tribe {i + 1}', TRIBE_NAMES_PLACEHOLDER[i])
+                              for i, tribe in enumerate(TRIBE_NAMES_PLACEHOLDER)]
 
-if st.button('Get slots'):
-    battle_manager.get_slots()
+        tribe_manager.create_tribes(tribes_names_input)
 
-    _ = [cols[i+2].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
-         enumerate(tribe_manager.tribes)]
+    if st.button('Get slots'):
+        battle_manager.get_slots()
+
+        # Show slots
+        _ = [cols[i+2].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
+             enumerate(tribe_manager.tribes)]
+
+        # Show config cards
+        st.info(type(tribe_manager.tribes[0].army.brawlers[0]).__name__)
+

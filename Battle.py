@@ -1,7 +1,7 @@
 from Singleton import Singleton
 from random import sample
+
 from Tribes import tribe_manager
-import streamlit as st
 
 
 class BattleManager(metaclass=Singleton):
