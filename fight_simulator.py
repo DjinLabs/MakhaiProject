@@ -35,5 +35,5 @@ with st.container():
              enumerate(tribe_manager.tribes)]
 
         # Show config cards
-        st.info(type(tribe_manager.tribes[0].army.brawlers[0]).__name__)
+        _ = [st.info(f'Army member {i+1}: {type(v).__name__} from {tribe_manager.tribes[0].name} Tribe') for i,v in enumerate(tribe_manager.tribes[0].army.brawlers)]
 

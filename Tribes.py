@@ -1,5 +1,6 @@
 from Singleton import Singleton
 import streamlit as st
+import random
 
 
 class TribeManager(metaclass=Singleton):
@@ -27,10 +28,6 @@ class Tribe:
         self.army = None
 
 
-import random
-from Tribes import Tribe
-
-
 class ArmyManager:
     def __init__(self, tribe: Tribe):
         self.tribe = tribe
@@ -43,7 +40,11 @@ class ArmyManager:
         :return: Populate the self.brawlers list with new brawlers
         (with the specific combination of Gods, Heroes, Champìons and Soldiers)
         """
-        self.brawlers.append(Soldier(self.tribe))
+        [self.brawlers.append(Soldier(self.tribe)) for _ in range(500)]  # Hardcoded
+        [self.brawlers.append(Champion(self.tribe)) for _ in range(290)]
+        [self.brawlers.append(Hero(self.tribe)) for _ in range(8)]
+        [self.brawlers.append(God(self.tribe)) for _ in range(2)]
+        random.shuffle(self.brawlers)
 
     def get_random_brawler(self):
         return random.choice(self.brawlers)
