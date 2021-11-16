@@ -1,39 +1,38 @@
 import random
 import streamlit as st
 
+from configuration_screen import *
 from Battle import battle_manager
 from Tribes import tribe_manager
 
-st.set_page_config(layout='wide')
-
 # GLOBAL VARIABLES
-TRIBE_NAMES_PLACEHOLDER = ['Raperos', 'Punks', 'Otakus', 'Jipis']
+GLOBAL_TRIBES_DICT = {'tribe1': 'Raperos', 'tribe2': 'Punks', 'tribe3': 'Otakus', 'tribe4': 'Jipis', }
 
 random.seed('297145941b593410080ad664a30f7b4b371a6a0fa497b365b836c8f9252da782')
 
-st.title('TeamFight Tokens')
+# Create tribes
+tribe_manager.create_tribes(GLOBAL_TRIBES_DICT)
 
-st.subheader('Fight simulator')
+st.title('Urban Tribes')
 
-# Input container
-with st.container():
+# Sidebar Navigation
+st.sidebar.header('Navigation')
+options = st.sidebar.radio('', ('Configuration', 'Fight simulator'))
 
-    # Create Tribes from Text Input with  Placeholder pre-fill
-    cols = st.columns([.75, 0.25, 1, 1, 1, 1])
+if options == 'Configuration':
+    configuration_widget(tribe_manager, GLOBAL_TRIBES_DICT)
 
-    with cols[0]:
-        tribes_names_input = [st.text_input(f'Tribe {i + 1}', TRIBE_NAMES_PLACEHOLDER[i])
-                              for i, tribe in enumerate(TRIBE_NAMES_PLACEHOLDER)]
+elif options == 'Fight simulator':
+    st.subheader('Fight simulator')
 
-        tribe_manager.create_tribes(tribes_names_input)
+    battle_manager.get_slots()
 
-    if st.button('Get slots'):
-        battle_manager.get_slots()
+    # Show slots
+    st.markdown('### Randomly generated initial slots')
 
-        # Show slots
-        _ = [cols[i+2].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
-             enumerate(tribe_manager.tribes)]
+    cols = st.columns([1, 1, 1, 1, 1, 1])
+    _ = [cols[i].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
+         enumerate(tribe_manager.tribes)]
 
-        # Show config cards
-        _ = [st.info(f'Army member {i+1}: {type(v).__name__} from {tribe_manager.tribes[0].name} Tribe') for i,v in enumerate(tribe_manager.tribes[0].army.brawlers)]
-
+    if st.button('Fight'):
+        st.write('ToDo')
