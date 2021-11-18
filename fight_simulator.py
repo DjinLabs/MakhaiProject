@@ -1,38 +1,32 @@
-import random
 import streamlit as st
+import random
 
-from configuration_screen import *
-from Battle import battle_manager
+from configuration_screen import configuration_widget
+from fight_simulator_screen import fight_simulator_widget
 from Tribes import tribe_manager
 
-# GLOBAL VARIABLES
-GLOBAL_TRIBES_DICT = {'tribe1': 'Raperos', 'tribe2': 'Punks', 'tribe3': 'Otakus', 'tribe4': 'Jipis', }
+# Configs
 
 random.seed('297145941b593410080ad664a30f7b4b371a6a0fa497b365b836c8f9252da782')
+st.set_page_config(layout='wide')
+
+# GLOBAL VARIABLES
+st.session_state['GLOBAL_TIERS'] = ['gods', 'heroes', 'champions', 'soldiers']
+if 'GLOBAL_TRIBES_DICT' not in st.session_state:
+    st.session_state['GLOBAL_TRIBES_DICT'] = {'tribe1': 'Raperos', 'tribe2': 'Punks',
+                                              'tribe3': 'Otakus', 'tribe4': 'Jipis', }
 
 # Create tribes
-tribe_manager.create_tribes(GLOBAL_TRIBES_DICT)
-
-st.title('Urban Tribes')
+tribe_manager.create_tribes(st.session_state['GLOBAL_TRIBES_DICT'])
 
 # Sidebar Navigation
 st.sidebar.header('Navigation')
 options = st.sidebar.radio('', ('Configuration', 'Fight simulator'))
 
+st.title('Urban Tribes')
+
 if options == 'Configuration':
-    configuration_widget(tribe_manager, GLOBAL_TRIBES_DICT)
+    configuration_widget(tribe_manager, st.session_state['GLOBAL_TRIBES_DICT'])
 
-elif options == 'Fight simulator':
-    st.subheader('Fight simulator')
-
-    battle_manager.get_slots()
-
-    # Show slots
-    st.markdown('### Randomly generated initial slots')
-
-    cols = st.columns([1, 1, 1, 1, 1, 1])
-    _ = [cols[i].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
-         enumerate(tribe_manager.tribes)]
-
-    if st.button('Fight'):
-        st.write('ToDo')
+if options == 'Fight simulator':
+    fight_simulator_widget(tribe_manager)
