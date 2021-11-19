@@ -92,7 +92,7 @@
       <workItem from="1637019424744" duration="19000" />
       <workItem from="1637083144097" duration="12805000" />
       <workItem from="1637252736106" duration="14102000" />
-      <workItem from="1637337284188" duration="359000" />
+      <workItem from="1637337284188" duration="451000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -171,7 +171,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637337528527</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Added requeriments.txt">
+      <created>1637337657062</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1637337657062</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
