@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="" />
+    <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,7 +48,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/.virtualenvs/streamlit_venv" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
@@ -90,6 +92,7 @@
       <workItem from="1637019424744" duration="19000" />
       <workItem from="1637083144097" duration="12805000" />
       <workItem from="1637252736106" duration="14102000" />
+      <workItem from="1637337284188" duration="359000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -147,7 +150,28 @@
       <option name="project" value="LOCAL" />
       <updated>1637267363940</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added requeriments.txt">
+      <created>1637337295858</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1637337295858</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Added requeriments.txt">
+      <created>1637337330341</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1637337330341</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Added requeriments.txt">
+      <created>1637337528527</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1637337528527</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,7 +198,8 @@
     <MESSAGE value="Created and displayed Army members" />
     <MESSAGE value="Load configuration of Brawlers and other major changes" />
     <MESSAGE value="A lot of major changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="A lot of major changes" />
+    <MESSAGE value="Added requeriments.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added requeriments.txt" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TeamFightTokens$run.coverage" NAME="run Coverage Results" MODIFIED="1636933481477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
