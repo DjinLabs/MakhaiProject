@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Battle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +95,7 @@
       <workItem from="1637019424744" duration="19000" />
       <workItem from="1637083144097" duration="12805000" />
       <workItem from="1637252736106" duration="14102000" />
-      <workItem from="1637337284188" duration="451000" />
+      <workItem from="1637337284188" duration="6364000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -178,7 +181,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637337657062</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Added requeriments.txt">
+      <created>1637337738412</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1637337738412</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

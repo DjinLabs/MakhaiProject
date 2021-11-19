@@ -6,7 +6,8 @@ from Tribes import TribeManager
 p = inflect.engine()
 
 
-# TODO: Añadir panel  de configuraciones generales y añadir: DAÑO DE CONTRAATAQUE (entre 40 y 60% del daño total del NFT atacado)
+# TODO: Añadir panel  de configuraciones generales y añadir:
+#  DAÑO DE CONTRAATAQUE (del BattleManager) (entre 40 y 60% del daño total del NFT atacado)
 
 
 def configuration_widget(tribe_manager: TribeManager, tribes_dict: dict):

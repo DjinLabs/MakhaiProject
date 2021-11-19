@@ -2,6 +2,7 @@ from Battle import battle_manager
 from Singleton import Singleton
 import streamlit as st
 import random
+from numpy.random import choice
 
 
 class TribeManager(metaclass=Singleton):
@@ -32,9 +33,9 @@ class Tribe:
     def __init__(self, key, name):
         self.key: str = key
         self.name: str = name
-        self.slot: str = None
+        self.slot: str = ''
         self.army: Army = Army()
-        self.alive: bool = True
+        self.eliminated: bool = False
 
     def __del__(self):
         print(f"The TRIBE object is getting DELETED: {self}")
@@ -54,17 +55,23 @@ class Brawler:
         self.hit_probability = config_dict[self.tier_key]['hit_prob']
         self.heal = config_dict[self.tier_key]['heal']
 
-    def attack(self):
-        pass
+    def attack(self, victim):
+        success_prob = self.hit_probability * 1 - victim.evade_probability
+        succcess = choice([True, False], p=[success_prob, 1 - success_prob])
+        if succcess:
+            victim.life -= self.base_attack
 
-    def counter_attack(self):
-        pass
+    def counter_attack(self, victim):
+        success_prob = self.hit_probability * 1 - victim.evade_probability
+        succcess = choice([True, False], p=[success_prob, 1 - success_prob])
+        if succcess:
+            victim.life -= self.base_attack * battle_manager.damage_reduction
 
     def cast_ability(self):
         pass
 
     def heal(self):
-        pass
+        self.life += self.heal
 
 
 class God(Brawler):
@@ -115,6 +122,10 @@ class Army:
 
     def get_random_brawler(self) -> Brawler:
         return random.choice(self.alive_brawlers)
+
+    def depose_brawler(self, brawler: Brawler):
+        self.alive_brawlers.remove(brawler)
+        self.casualties.append(brawler)
 
 
 # Instantiate Singletons
