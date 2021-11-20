@@ -113,6 +113,7 @@ class BattleManager(metaclass=Singleton):
 
         cols[0].code(f'Event: {"End"}'), cols[1].code(
             f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
+        st.balloons()
 
     def reset(self, tribe_manager):
         tribe_manager.create_armies()
