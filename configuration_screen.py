@@ -40,4 +40,6 @@ def configuration_widget(tribe_manager: TribeManager, tribes_dict: dict):
             config_dict[tribe.key][tier]['heal'] = cols[i * 2].slider('Healing', 0, 10, (1, 3),
                                                                       key=f'{tribe.key}_{tier}_heal')
 
-    tribe_manager.create_armies(config_dict)
+    tribe_manager.config_dict = config_dict
+
+    tribe_manager.create_armies()

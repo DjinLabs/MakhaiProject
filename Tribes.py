@@ -9,6 +9,7 @@ class TribeManager(metaclass=Singleton):
     def __init__(self):
         self.tribes = None
         self.tribe_names = None
+        self.config_dict: dict = {}
 
     def __del__(self):
         print(f"The TRIBEMANAGER object is getting DELETED: {self}")
@@ -21,12 +22,12 @@ class TribeManager(metaclass=Singleton):
             for tribe_key, tribe_name in tribes_dict.items():
                 self.tribes.append(Tribe(tribe_key, tribe_name))
             print('Assigning slots...')
-            battle_manager.get_slots(tribe_manager)
+            battle_manager.get_slots(tribe_manager) # @ TODO: Probablemente quitar de aqui
 
-    def create_armies(self, config_dict):
+    def create_armies(self):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
-                tribe.spawn_army(config_dict[tribe.key], tribe)
+                tribe.spawn_army(self.config_dict[tribe.key], tribe)
 
 
 class Tribe:
@@ -42,6 +43,7 @@ class Tribe:
 
     def spawn_army(self, config_dict, tribe):
         self.army.alive_brawlers = self.army.spawn_army(config_dict, tribe)
+        self.army.casualties = []
 
 
 class Brawler:
@@ -126,7 +128,8 @@ class Army:
         return brawlers
 
     def get_random_brawler(self) -> Brawler:
-        return random.choice(self.alive_brawlers)
+        if len(self.alive_brawlers) > 0:
+            return random.choice(self.alive_brawlers)
 
     def depose_brawler(self, brawler: Brawler):
         self.alive_brawlers.remove(brawler)

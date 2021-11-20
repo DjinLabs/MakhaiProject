@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 
+from Battle import battle_manager
 from configuration_screen import configuration_widget
 from fight_simulator_screen import fight_simulator_widget
 from Tribes import tribe_manager
@@ -33,6 +34,5 @@ if options == 'Fight simulator':
     fight_simulator_widget(tribe_manager)
 
 if reset_btn:
-    # TODO: Proper reset function taking into account: TribeManager, BattleManager...
-    st.sidebar.error('Reset not implemented yet. Refresh the page for resetting the battle.')
-    tribe_manager.create_tribes(st.session_state['GLOBAL_TRIBES_DICT'])
+    print('Reset')
+    battle_manager.reset(tribe_manager)

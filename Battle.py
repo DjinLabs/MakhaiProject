@@ -8,30 +8,20 @@ import numpy as np
 p = inflect.engine()
 
 
-# class Round:
-#     def __init__(self, round_number, attacker):
-#         self.round_number: int = round_number
-#         self.attacker = attacker
-#         self.defender_army = None
-
-# def setup_round(self, tribe_manager):
-#     self.defender_army = list(itertools.chain.from_iterable(
-#         [tribe.army.alive_brawlers for tribe in tribe_manager.tribes if tribe != self.attacker]))
-
-
 class BattleManager(metaclass=Singleton):
     def __init__(self):
         self.attacker = None
         self.round_number: int = 0
         self.slots = ['A', 'B', 'C', 'D']
         self.damage_reduction = (0.4, 0.6)  # @TODO: Assign from config
-        self.alive_tribes: [] = None
+        self.alive_tribes: [] = []
         self.eliminated_tribes: [] = None
 
     def setup_battle(self, tribe_manager):
         self.round_number = 0
-        self.alive_tribes = tribe_manager.tribes  # All tribes are alive at the beginning of the battle
+        self.alive_tribes = [tr for tr in tribe_manager.tribes] # All tribes are alive at the beginning of the battle
         self.eliminated_tribes = []
+        print(f'Setting up battle...\nAlive Tribes: {[tr.name for tr in self.alive_tribes]}')
 
     def get_slots(self, tribe_manager):
         slots = sample(self.slots, len(self.slots))
@@ -40,8 +30,9 @@ class BattleManager(metaclass=Singleton):
         tribe_manager.tribes.sort(key=lambda x: x.slot)
 
     def get_random_victim(self):
-        return choice(list(itertools.chain.from_iterable(
-            [tr.army.alive_brawlers for tr in self.alive_tribes if tr != self.attacker])))
+        victims_pool = list(itertools.chain.from_iterable(
+            [tr.army.alive_brawlers for tr in self.alive_tribes if tr != self.attacker]))
+        return choice(victims_pool) if victims_pool else None
 
     def wrestle(self, brwlr, victim):
         # a. Se produce el ataque básico, cuyo daño base está determinado en el Brawler
@@ -98,13 +89,15 @@ class BattleManager(metaclass=Singleton):
                 # 1.1 Select random NFT from attacker army
                 brwlr = self.attacker.army.get_random_brawler()  # Seleccionar un NFT random del primer slot
                 # 1.2 Select random NFT from rest of armies
-                victim = self.get_random_victim()
+                if brwlr is not None:
+                    victim = self.get_random_victim()
 
-                # a. + b. + c. Gestión del reparto de mecos y habilidades
-                self.wrestle(brwlr, victim)
+                    if victim is not None:
+                        # a. + b. + c. Gestión del reparto de mecos y habilidades
+                        self.wrestle(brwlr, victim)
 
-                # d. Se recupera la vida
-                self.healing_phase(brwlr)
+                        # d. Se recupera la vida
+                        self.healing_phase(brwlr)
 
             # Output
             cols[0].code(f"""Round {self.round_number}: Status""")
@@ -120,6 +113,10 @@ class BattleManager(metaclass=Singleton):
 
         cols[0].code(f'Event: {"End"}'), cols[1].code(
             f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
+
+    def reset(self, tribe_manager):
+        tribe_manager.create_armies()
+        self.setup_battle(tribe_manager)
 
 
 # Instantiate Singletons

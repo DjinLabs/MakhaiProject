@@ -14,6 +14,10 @@ def fight_simulator_widget(tribe_manager):
          enumerate(tribe_manager.tribes)]
 
     if cols[0].button('Fight'):
-        battle_manager.setup_battle(tribe_manager)
+
+        if len(battle_manager.alive_tribes) < 4:
+            battle_manager.reset(tribe_manager)
+
         if len(battle_manager.alive_tribes) == 4:
+            battle_manager.setup_battle(tribe_manager)
             battle_manager.main_battle_loop(tribe_manager)
