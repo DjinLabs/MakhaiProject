@@ -22,6 +22,7 @@ tribe_manager.create_tribes(st.session_state['GLOBAL_TRIBES_DICT'])
 # Sidebar Navigation
 st.sidebar.header('Navigation')
 options = st.sidebar.radio('', ('Configuration', 'Fight simulator'))
+reset_btn = st.sidebar.button('Reset')
 
 st.title('Urban Tribes')
 
@@ -30,3 +31,8 @@ if options == 'Configuration':
 
 if options == 'Fight simulator':
     fight_simulator_widget(tribe_manager)
+
+if reset_btn:
+    # TODO: Proper reset function taking into account: TribeManager, BattleManager...
+    st.sidebar.error('Reset not implemented yet. Refresh the page for resetting the battle.')
+    tribe_manager.create_tribes(st.session_state['GLOBAL_TRIBES_DICT'])

@@ -48,12 +48,16 @@ class Brawler:
     def __init__(self, config_dict, tier_key, tribe):
         self.tribe: Tribe = tribe
         self.tier_key = tier_key
-        self.life = config_dict[self.tier_key]['life']
-        self.base_attack = config_dict[self.tier_key]['base_attack']
-        self.num_attacks = config_dict[self.tier_key]['num_attacks']
-        self.evade_probability = config_dict[self.tier_key]['evade_prob']
-        self.hit_probability = config_dict[self.tier_key]['hit_prob']
-        self.heal = config_dict[self.tier_key]['heal']
+        self.life = random.randint(config_dict[self.tier_key]['life'][0], config_dict[self.tier_key]['life'][1])
+        self.base_attack = random.randint(config_dict[self.tier_key]['base_attack'][0],
+                                          config_dict[self.tier_key]['base_attack'][1])
+        self.num_attacks = random.randint(config_dict[self.tier_key]['num_attacks'][0],
+                                          config_dict[self.tier_key]['num_attacks'][1])
+        self.evade_probability = round(
+            random.uniform(config_dict[self.tier_key]['evade_prob'][0], config_dict[self.tier_key]['evade_prob'][1]), 2)
+        self.hit_probability = round(
+            random.uniform(config_dict[self.tier_key]['hit_prob'][0], config_dict[self.tier_key]['hit_prob'][1]), 2)
+        self.heal = random.randint(config_dict[self.tier_key]['heal'][0], config_dict[self.tier_key]['heal'][1])
 
     def attack(self, victim):
         success_prob = self.hit_probability * 1 - victim.evade_probability
@@ -65,12 +69,13 @@ class Brawler:
         success_prob = self.hit_probability * 1 - victim.evade_probability
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
-            victim.life -= self.base_attack * battle_manager.damage_reduction
+            victim.life -= self.base_attack * round(
+                random.uniform(battle_manager.damage_reduction[0], battle_manager.damage_reduction[1]), 2)
 
     def cast_ability(self):
         pass
 
-    def heal(self):
+    def healing(self):
         self.life += self.heal
 
 

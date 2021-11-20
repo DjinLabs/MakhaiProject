@@ -3,26 +3,34 @@ from Singleton import Singleton
 from random import sample, choice
 import itertools
 import inflect
+import numpy as np
 
 p = inflect.engine()
 
 
-class Round:
-    def __init__(self, round_number, attacker):
-        self.round_number: int = round_number
-        self.attacker = attacker
-        self.defender_army = None
+# class Round:
+#     def __init__(self, round_number, attacker):
+#         self.round_number: int = round_number
+#         self.attacker = attacker
+#         self.defender_army = None
 
-    def setup_round(self, tribe_manager):
-        self.defender_army = list(itertools.chain.from_iterable(
-            [tribe.army.alive_brawlers for tribe in tribe_manager.tribes if tribe != self.attacker]))
+# def setup_round(self, tribe_manager):
+#     self.defender_army = list(itertools.chain.from_iterable(
+#         [tribe.army.alive_brawlers for tribe in tribe_manager.tribes if tribe != self.attacker]))
 
 
 class BattleManager(metaclass=Singleton):
     def __init__(self):
+        self.attacker = None
+        self.round_number: int = 0
         self.slots = ['A', 'B', 'C', 'D']
         self.damage_reduction = (0.4, 0.6)  # @TODO: Assign from config
-        self.alive_tribes = []
+        self.alive_tribes: [] = None
+        self.eliminated_tribes: [] = None
+
+    def setup_battle(self, tribe_manager):
+        self.round_number = 0
+        self.alive_tribes = tribe_manager.tribes  # All tribes are alive at the beginning of the battle
         self.eliminated_tribes = []
 
     def get_slots(self, tribe_manager):
@@ -31,9 +39,9 @@ class BattleManager(metaclass=Singleton):
             t.slot = s
         tribe_manager.tribes.sort(key=lambda x: x.slot)
 
-    @staticmethod
-    def get_random_victim(curr_round: Round):
-        return choice(curr_round.defender_army)
+    def get_random_victim(self):
+        return choice(list(itertools.chain.from_iterable(
+            [tr.army.alive_brawlers for tr in self.alive_tribes if tr != self.attacker])))
 
     def wrestle(self, brwlr, victim):
         # a. Se produce el ataque básico, cuyo daño base está determinado en el Brawler
@@ -49,54 +57,69 @@ class BattleManager(metaclass=Singleton):
 
         # Checks de salud (matar brawlers)
         if brwlr.life <= 0:
+            print('Atacante ha muerto')
             brwlr.tribe.army.depose_brawler(brwlr)
 
         if victim.life <= 0:
+            print('Víctima ha muerto')
             victim.tribe.army.depose_brawler(victim)
 
         # Check de unidades (eliminar tribus)
-        if brwlr.tribe.army.alive_brawlers <= 0:
+        if len(brwlr.tribe.army.alive_brawlers) <= 0:
+            print('La Tribu del atacante ha sido derrotada')
             self.alive_tribes.remove(brwlr.tribe)
             self.eliminated_tribes.append(brwlr.tribe)
 
-        if victim.tribe.army.alive_brawlers <= 0:
+        if len(victim.tribe.army.alive_brawlers) <= 0:
+            print('La Tribu de la víctima ha sido derrotada')
             self.alive_tribes.remove(victim.tribe)
             self.eliminated_tribes.append(victim.tribe)
 
-    def healing_phase(self, brwlr, victim):
+        print(f'There are {len(self.alive_tribes)} alive Tribes and {len(self.eliminated_tribes)} eliminated Tribes')
+
+    @staticmethod
+    def healing_phase(brwlr):
         if brwlr.life > 0:
-            brwlr.heal()
+            brwlr.healing()
 
     def main_battle_loop(self, tribe_manager):
-        cols = st.columns([0.75, 5])
+        print('Main battle loop starting...')
+        cols = st.columns([1, 5])
 
         while len(self.alive_tribes) > 1:  # Mientras más de una Tribu esté viva
+            self.round_number += 1
+            print(f'Round {self.round_number}')
             # For each slot
-            for round_number, tribe in enumerate(tribe_manager.tribes):
+            for tribe in tribe_manager.tribes:  # TODO: Handle better the slots and battle order with BattleManager
                 # Init round setup
-                curr_round = Round(round_number=round_number, attacker=tribe)
-                curr_round.setup_round(tribe_manager)
+                self.attacker = tribe
 
                 # 1. Slot Attack
                 # 1.1 Select random NFT from attacker army
-                brwlr = curr_round.attacker.army.get_random_brawler()  # Seleccionar un NFT random del primer slot
+                brwlr = self.attacker.army.get_random_brawler()  # Seleccionar un NFT random del primer slot
                 # 1.2 Select random NFT from rest of armies
-                victim = self.get_random_victim(curr_round)
-
-                cols[0].code(f'Event: {"Info"}'), cols[1].code(
-                    f"""Size of defender army: {len(curr_round.defender_army)}""")
-                cols[0].code(f'Event: {1}.{round_number}'), cols[1].code(
-                    f"""The first chosen brawler is from "{brwlr.tribe.name}" Tribe and "{brwlr.tier_key.title()}" Tier""")
-                cols[0].code(f'Event: {2}.{round_number}'), cols[1].code(
-                    f"""The victim is from "{victim.tribe.name}" Tribe and "{victim.tier_key.title()}" Tier""")
+                victim = self.get_random_victim()
 
                 # a. + b. + c. Gestión del reparto de mecos y habilidades
                 self.wrestle(brwlr, victim)
 
                 # d. Se recupera la vida
-                self.healing_phase(brwlr, victim)
+                self.healing_phase(brwlr)
+
+            # Output
+            cols[0].code(f"""Round {self.round_number}: Status""")
+            cols[1].code(f"""Alive Tribes & Brawlers: {[(tr.name,len(tr.army.alive_brawlers)) for tr in self.alive_tribes]}""")
+
+            cols[0].code(f"""Round {self.round_number}: Info""")
+            cols[1].code(f"""Average Health: {[(tr.name, int(np.mean([br.life for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
+
+            cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
+
 
             # TODO 2. Se reubican aleatoriamente las tribus en los slots.
+
+        cols[0].code(f'Event: {"End"}'), cols[1].code(
+            f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
 
 
 # Instantiate Singletons
