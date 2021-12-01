@@ -1,3 +1,4 @@
+import configuration_screen
 from Battle import battle_manager
 from Singleton import Singleton
 import streamlit as st
@@ -22,12 +23,19 @@ class TribeManager(metaclass=Singleton):
             for tribe_key, tribe_name in tribes_dict.items():
                 self.tribes.append(Tribe(tribe_key, tribe_name))
             print('Assigning slots...')
-            battle_manager.get_slots(tribe_manager) # @ TODO: Probablemente quitar de aqui
+            battle_manager.get_slots(tribe_manager)  # @ TODO: Probablemente quitar de aqui
 
     def create_armies(self):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
-                tribe.spawn_army(self.config_dict[tribe.key], tribe)
+                if tribe.key in self.config_dict:
+                    tribe.army.spawn_army(self.config_dict[tribe.key], tribe)
+                else:
+                    st.error(
+                        f'No configuration found for Tribes.\nPlease, navigate to the Configuration screen.')
+                    return False
+        return True
+
 
 
 class Tribe:
@@ -40,10 +48,6 @@ class Tribe:
 
     def __del__(self):
         print(f"The TRIBE object is getting DELETED: {self}")
-
-    def spawn_army(self, config_dict, tribe):
-        self.army.alive_brawlers = self.army.spawn_army(config_dict, tribe)
-        self.army.casualties = []
 
 
 class Brawler:
@@ -62,13 +66,13 @@ class Brawler:
         self.heal = random.randint(config_dict[self.tier_key]['heal'][0], config_dict[self.tier_key]['heal'][1])
 
     def attack(self, victim):
-        success_prob = self.hit_probability * 1 - victim.evade_probability
+        success_prob = max(self.hit_probability * 1 - victim.evade_probability, 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
             victim.life -= self.base_attack
 
     def counter_attack(self, victim):
-        success_prob = self.hit_probability * 1 - victim.evade_probability
+        success_prob = max(self.hit_probability * 1 - victim.evade_probability, 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
             victim.life -= self.base_attack * round(
@@ -110,14 +114,14 @@ class Army:
     def __del__(self):
         print(f"The ARMY object is getting DELETED: {self}")
 
-    def spawn_army(self, config_dict: dict, tribe: Tribe) -> list:
+    def spawn_army(self, config_dict: dict, tribe: Tribe):
         """
         @NOTE: Esta función se sustituirá por una que lea de <alguna fuente> los NFTs de cada tribu
         Spawns a new army of brawlers
         :return: Populate the self.brawlers list with new brawlers
         (with the specific combination of Gods, Heroes, Champìons and Soldiers)
         """
-        brawlers = []
+        brawlers = []  # TODO: Añadir a config general el número de cada uno de los tipos de brawlers
         [brawlers.append(God(config_dict, st.session_state['GLOBAL_TIERS'][0], tribe)) for _ in
          range(1)]  # Hardcoded (2)
         [brawlers.append(Hero(config_dict, st.session_state['GLOBAL_TIERS'][1], tribe)) for _ in range(2)]  # (8)
@@ -125,7 +129,9 @@ class Army:
         [brawlers.append(Soldier(config_dict, st.session_state['GLOBAL_TIERS'][3], tribe)) for _ in range(8)]  # (500)
 
         random.shuffle(brawlers)
-        return brawlers
+
+        self.alive_brawlers = brawlers
+        self.casualties = []
 
     def get_random_brawler(self) -> Brawler:
         if len(self.alive_brawlers) > 0:

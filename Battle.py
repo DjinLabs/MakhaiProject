@@ -19,7 +19,7 @@ class BattleManager(metaclass=Singleton):
 
     def setup_battle(self, tribe_manager):
         self.round_number = 0
-        self.alive_tribes = [tr for tr in tribe_manager.tribes] # All tribes are alive at the beginning of the battle
+        self.alive_tribes = [tr for tr in tribe_manager.tribes]  # All tribes are alive at the beginning of the battle
         self.eliminated_tribes = []
         print(f'Setting up battle...\nAlive Tribes: {[tr.name for tr in self.alive_tribes]}')
 
@@ -101,23 +101,24 @@ class BattleManager(metaclass=Singleton):
 
             # Output
             cols[0].code(f"""Round {self.round_number}: Status""")
-            cols[1].code(f"""Alive Tribes & Brawlers: {[(tr.name,len(tr.army.alive_brawlers)) for tr in self.alive_tribes]}""")
+            cols[1].code(
+                f"""Alive Tribes & Brawlers: {[(tr.name, len(tr.army.alive_brawlers)) for tr in self.alive_tribes]}""")
 
             cols[0].code(f"""Round {self.round_number}: Info""")
-            cols[1].code(f"""Average Health: {[(tr.name, int(np.mean([br.life for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
+            cols[1].code(
+                f"""Average Health: {[(tr.name, int(np.mean([br.life for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 
-
             # TODO 2. Se reubican aleatoriamente las tribus en los slots.
 
-        cols[0].code(f'Event: {"End"}'), cols[1].code(
-            f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
-        st.balloons()
+        if len(self.alive_tribes) == 1:
+            cols[0].code(f'Event: {"End"}'), cols[1].code(
+                f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
 
     def reset(self, tribe_manager):
-        tribe_manager.create_armies()
-        self.setup_battle(tribe_manager)
+        if tribe_manager.create_armies():
+            self.setup_battle(tribe_manager)
 
 
 # Instantiate Singletons
