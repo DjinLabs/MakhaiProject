@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Abilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/Abilities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fight_simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_simulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/initializations.py" beforeDir="false" afterPath="$PROJECT_DIR$/initializations.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +113,7 @@
       <workItem from="1639234616394" duration="7469000" />
       <workItem from="1639245849534" duration="68000" />
       <workItem from="1639245931504" duration="13537000" />
-      <workItem from="1639324482344" duration="10740000" />
+      <workItem from="1639324482344" duration="11479000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -271,7 +276,14 @@
       <option name="project" value="LOCAL" />
       <updated>1639334907193</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="minor changes for MongoDB on Atlas">
+      <created>1639335231489</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1639335231489</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

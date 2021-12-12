@@ -16,17 +16,23 @@ class DatabaseManager(metaclass=Singleton):
         self.abilities_collection = None
 
         # DB Initialization
-        self.initialize_connection()
+        # self.initialize_connection() Does not work with streamlit
 
     def initialize_connection(self):
-        print('Connecting to MongoDB...')
-        self.client = pymongo.MongoClient(
-            f"mongodb+srv://{self.user}:{self.password}@cluster0.78wex.mongodb.net/UrbanTribes"
-            f"?retryWrites=true&w=majority")
-        self.db = self.client['UrbanTribes']
-        self.config_collection = self.db.configuration
-        self.brawlers_collection = self.db.brawlers
-        self.abilities_collection = self.db.abilities
+        if self.client is None:
+            print('Connecting to MongoDB...')
+            self.client = pymongo.MongoClient(
+                f"mongodb+srv://{self.user}:{self.password}@cluster0.78wex.mongodb.net/UrbanTribes"
+                f"?retryWrites=true&w=majority")
+            self.db = self.client['UrbanTribes']
+            self.config_collection = self.db.configuration
+            self.brawlers_collection = self.db.brawlers
+            self.abilities_collection = self.db.abilities
+        elif self.client.server_info()['ok'] == 1.0:
+            print('Already connected to MongoDB')
+        else:
+            print('Unkown error with MongoDB')
+
 
     def get_gods(self, tribe_key: str = ""):
         query = {"tier": 0}

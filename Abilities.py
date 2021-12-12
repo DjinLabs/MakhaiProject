@@ -2,12 +2,12 @@ import streamlit as st
 from Singleton import Singleton
 from Database import db_manager
 
-from initializations import init_global_variables
+from initializations import init_process
 
 
 class AbilityManager(metaclass=Singleton):
     def __init__(self):
-        init_global_variables()
+        init_process()
         self.ability_pool: dict = {st.session_state['GLOBAL_TIERS'][0]: [],
                                    st.session_state['GLOBAL_TIERS'][1]: [],
                                    st.session_state['GLOBAL_TIERS'][2]: [],

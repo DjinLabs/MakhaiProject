@@ -4,7 +4,7 @@ from Battle import battle_manager
 from configuration_screen import configuration_widget
 from fight_simulator_screen import fight_simulator_widget
 from Tribes import tribe_manager
-from initializations import init_global_variables
+from initializations import init_process, init_database_connection
 
 
 def streamlit_initialization():
@@ -39,5 +39,6 @@ def main_loop():
 
 # Main loop
 streamlit_initialization()
-init_global_variables()
+init_process()
+init_database_connection()
 main_loop()

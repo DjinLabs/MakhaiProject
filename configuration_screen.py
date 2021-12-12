@@ -7,6 +7,7 @@ p = inflect.engine()
 
 
 def configuration_widget(tribe_manager: TribeManager, tribes_dict: dict):
+
     st.subheader('Configuration')
 
     general_config_expander(tribe_manager)
