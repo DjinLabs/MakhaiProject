@@ -1,19 +1,19 @@
-import configuration_screen
 from Battle import battle_manager
+from Database import db_manager
 from Singleton import Singleton
 import streamlit as st
 import random
 from numpy.random import choice
+from Abilities import AbilityManager, ability_manager
 
 
 class TribeManager(metaclass=Singleton):
     def __init__(self):
         self.tribes = None
         self.tribe_names = None
-        self.config_dict: dict = {}
 
-    def __del__(self):
-        print(f"The TRIBEMANAGER object is getting DELETED: {self}")
+    # def __del__(self):
+    #     print(f"The TRIBEMANAGER object is getting DELETED: {self}")
 
     def create_tribes(self, tribes_dict):
         if self.tribes is None:
@@ -28,14 +28,8 @@ class TribeManager(metaclass=Singleton):
     def create_armies(self):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
-                if tribe.key in self.config_dict:
-                    tribe.army.spawn_army(self.config_dict[tribe.key], tribe)
-                else:
-                    st.error(
-                        f'No configuration found for Tribes.\nPlease, navigate to the Configuration screen.')
-                    return False
+                tribe.army.spawn_army(tribe)
         return True
-
 
 
 class Tribe:
@@ -46,63 +40,107 @@ class Tribe:
         self.army: Army = Army()
         self.eliminated: bool = False
 
-    def __del__(self):
-        print(f"The TRIBE object is getting DELETED: {self}")
+    # def __del__(self):
+    #     print(f"The TRIBE object is getting DELETED: {self}")
 
 
 class Brawler:
-    def __init__(self, config_dict, tier_key, tribe):
+    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1, *args):
+        # General attributes
+        self.name: str = name
         self.tribe: Tribe = tribe
         self.tier_key = tier_key
-        self.life = random.randint(config_dict[self.tier_key]['life'][0], config_dict[self.tier_key]['life'][1])
-        self.base_attack = random.randint(config_dict[self.tier_key]['base_attack'][0],
-                                          config_dict[self.tier_key]['base_attack'][1])
-        self.num_attacks = random.randint(config_dict[self.tier_key]['num_attacks'][0],
-                                          config_dict[self.tier_key]['num_attacks'][1])
-        self.evade_probability = round(
-            random.uniform(config_dict[self.tier_key]['evade_prob'][0], config_dict[self.tier_key]['evade_prob'][1]), 2)
-        self.hit_probability = round(
-            random.uniform(config_dict[self.tier_key]['hit_prob'][0], config_dict[self.tier_key]['hit_prob'][1]), 2)
-        self.heal = random.randint(config_dict[self.tier_key]['heal'][0], config_dict[self.tier_key]['heal'][1])
+        self.sex: int = sex
+
+        # Buff / Debuff
+        # Objeto interno: {'value': 0, 'rounds': 0}
+        self.buff = {
+            'life': [],
+            'base_attack': [],
+            'num_attacks': [],
+            'evade_probability': [],
+            'hit_probability': [],
+            'heal': [],
+        }
+
+        # Invulnerability and evasion
+        self.invulnerability = {
+            'invulnerable': False,
+            'invulnerable:_to': [],
+            'rounds': 0,
+        }
+        self.exclusion = {
+            'excluded': False,
+            'rounds': 0,
+        }
+
+        # Stats
+        self.stats = dict()
+        self.max_life = None
+
+        # Abilities # TODO: Rellenar esto desde el constructor de God/Champion etc
+        self.abilities = []
 
     def attack(self, victim):
-        success_prob = max(self.hit_probability * 1 - victim.evade_probability, 0)
+        success_prob = max(self.stats['hit_probability'] * 1 - victim.stats['evade_probability'], 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
-            victim.life -= self.base_attack
+            victim.stats['life'] -= self.stats['base_attack']
 
     def counter_attack(self, victim):
-        success_prob = max(self.hit_probability * 1 - victim.evade_probability, 0)
+        success_prob = max(self.stats['hit_probability'] * 1 - victim.stats['evade_probability'], 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
-            victim.life -= self.base_attack * round(
+            victim.stats['life'] -= self.stats['base_attack'] * round(
                 random.uniform(battle_manager.damage_reduction[0], battle_manager.damage_reduction[1]), 2)
 
-    def cast_ability(self):
-        pass
+    def execute_abilities(self, victim, alive_tribes):
+        # Pick a random ability
+        ability = random.choice(
+            self.abilities)  # TODO: Aplicar softmax a la probabilidad de pick de las habilidades y tal
+        print(ability)
+        ability.cast_ability(victim, alive_tribes)
 
     def healing(self):
-        self.life += self.heal
+        self.stats['life'] += self.stats['heal']
 
 
 class God(Brawler):
-    def __init__(self, config_dict: dict, tier_key: str, tribe: Tribe):
-        super().__init__(config_dict, tier_key, tribe)
+    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1):
+        super().__init__(name, tribe, tier_key, sex)
 
 
 class Hero(Brawler):
-    def __init__(self, config_dict: dict, tier_key: str, tribe: Tribe):
-        super().__init__(config_dict, tier_key, tribe)
+    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1):
+        super().__init__(name, tribe, tier_key, sex)
 
 
 class Champion(Brawler):
-    def __init__(self, config_dict: dict, tier_key: str, tribe: Tribe):
-        super().__init__(config_dict, tier_key, tribe)
+    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int):
+        super().__init__(name, tribe, tier_key, sex)
+        # self.assign_abilities()
+
+    def assign_abilities(self):
+        """
+        Los campeones tienen 3 habilidades escogidas aleatoriamente de una base de 9
+        de las 3 escogidas, máximo 1 puede ser negativa.
+        """
+        print(ability_manager.ability_pool[self.tier_key])
+        # TODO
 
 
 class Soldier(Brawler):
-    def __init__(self, config_dict: dict, tier_key: str, tribe: Tribe):
-        super().__init__(config_dict, tier_key, tribe)
+    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int):
+        super().__init__(name, tribe, tier_key, sex)
+        # self.assign_abilities()
+
+    def assign_abilities(self, ):
+        """
+        Los soldados tienen 3 habilidades escogidas aleatoriamente de una base de 10
+        de las 3 escogidas, máximo 2 pueden ser negativas.
+        """
+        # @TODO
+        print(ability_manager.ability_pool[self.tier_key])
 
 
 class Army:
@@ -111,36 +149,199 @@ class Army:
         self.alive_brawlers = []
         self.casualties = []
 
-    def __del__(self):
-        print(f"The ARMY object is getting DELETED: {self}")
+    # def __del__(self):
+    #     print(f"The ARMY object is getting DELETED: {self}")
 
-    def spawn_army(self, config_dict: dict, tribe: Tribe):
+    def spawn_army(self, tribe: Tribe):
         """
         @NOTE: Esta función se sustituirá por una que lea de <alguna fuente> los NFTs de cada tribu
         Spawns a new army of brawlers
         :return: Populate the self.brawlers list with new brawlers
         (with the specific combination of Gods, Heroes, Champìons and Soldiers)
         """
-        brawlers = []  # TODO: Añadir a config general el número de cada uno de los tipos de brawlers
-        [brawlers.append(God(config_dict, st.session_state['GLOBAL_TIERS'][0], tribe)) for _ in
-         range(1)]  # Hardcoded (2)
-        [brawlers.append(Hero(config_dict, st.session_state['GLOBAL_TIERS'][1], tribe)) for _ in range(2)]  # (8)
-        [brawlers.append(Champion(config_dict, st.session_state['GLOBAL_TIERS'][2], tribe)) for _ in range(4)]  # (290)
-        [brawlers.append(Soldier(config_dict, st.session_state['GLOBAL_TIERS'][3], tribe)) for _ in range(8)]  # (500)
+        print(f"Spawning a new army of {tribe.key} -> {tribe.name} in slot {tribe.slot}")
+
+        # @TODO: Implementar la asignación de habilidades desde el pool de cada tier etc...
+
+        brawlers = []
+        stats_configuration = list(db_manager.config_collection.find({"custom_id": "stats_configuration"}))[0]
+        # Spawning the Gods
+        brawlers.extend(self.spawn_gods(tribe))
+        # Spawning the Heroes
+        brawlers.extend(self.spawn_heroes(tribe, stats_configuration))
+
+        # Spawning the Champions and Soldiers
+        brawlers.extend(self.spawn_champions(tribe, stats_configuration))
+        brawlers.extend(self.spawn_soldiers(tribe, stats_configuration))
 
         random.shuffle(brawlers)
 
         self.alive_brawlers = brawlers
         self.casualties = []
 
+    @staticmethod
+    def spawn_gods(tribe):
+        """
+        Spawnear los Gods según la lista de Gods de la BD
+        """
+        brawlers = []
+        gods = list(db_manager.get_gods(tribe_key=tribe.key))
+
+        for god in gods:
+            print(f'Spawning God: {god["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][god["tribe"]]}')
+            new_god = God(god['name'], tribe, st.session_state['GLOBAL_TIERS'][god['tier']])
+
+            # Set stats
+
+            new_god.stats = {
+                'life': god['stats']['life']['value'],
+                'base_attack': god['stats']['base_attack']['value'],
+                'num_attacks': god['stats']['num_attacks']['value'],
+                'evade_probability': god['stats']['evade_probability']['value'],
+                'hit_probability': god['stats']['hit_probability']['value'],
+                'heal': god['stats']['heal']['value'],
+            }
+
+            new_god.max_life = god['stats']['life']['value']
+
+            brawlers.append(new_god)
+
+            # TODO: Asignar su habilidad
+
+        return brawlers
+
+    def spawn_heroes(self, tribe, stats_configuration):
+        """
+        Spawnear los Heroes según la lista de Heroes de la BD
+        """
+        brawlers = []
+        heroes = list(db_manager.get_heroes(tribe_key=tribe.key))
+        stats_configuration = list(db_manager.config_collection.find({"custom_id": "stats_configuration"}))[0]
+        config = stats_configuration['configs']['heroes'][tribe.key]['stats']
+
+        for hero in heroes:
+            print(f'Spawning Hero: {hero["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][hero["tribe"]]}')
+            new_hero = Hero(hero['name'], tribe, st.session_state['GLOBAL_TIERS'][hero['tier']], hero['sex'])
+
+            # Set stats
+            new_hero.stats = {
+                'life': random.randint(config['life']['value'][0],
+                                       config['life']['value'][1]),
+                'base_attack': random.randint(config['base_attack']['value'][0],
+                                              config['base_attack']['value'][1]),
+                'num_attacks': random.randint(config['num_attacks']['value'][0],
+                                              config['num_attacks']['value'][1]),
+
+                'evade_probability': round(
+                    random.uniform(config['evade_probability']['value'][0],
+                                   config['evade_probability']['value'][1]), 2),
+                'hit_probability': round(
+                    random.uniform(config['hit_probability']['value'][0],
+                                   config['hit_probability']['value'][1]),
+                    2),
+                'heal': random.randint(config['heal']['value'][0],
+                                       config['heal']['value'][1]),
+            }
+
+            new_hero.max_life = new_hero.stats['life']
+
+            # TODO: Asignar su habilidad
+
+            brawlers.append(new_hero)
+
+        return brawlers
+
+    @staticmethod
+    def spawn_champions(tribe, stats_configuration):
+        """
+        Spawnear los Champions y asignar sus habilidades según la pool de habilidades de Champions
+        """
+        brawlers = []
+
+        config = stats_configuration['configs']['champions'][tribe.key]['stats']
+
+        for i in range(4):  # TODO: Sustituir por número de Champions from general_config
+            new_champ = Champion(f"Champion{random.randint(0, 2500)}",
+                                 tribe, st.session_state['GLOBAL_TIERS'][2], random.randint(0, 1))
+
+            # Set stats
+            new_champ.stats = {
+                'life': random.randint(config['life']['value'][0],
+                                       config['life']['value'][1]),
+                'base_attack': random.randint(config['base_attack']['value'][0],
+                                              config['base_attack']['value'][1]),
+                'num_attacks': random.randint(config['num_attacks']['value'][0],
+                                              config['num_attacks']['value'][1]),
+
+                'evade_probability': round(
+                    random.uniform(config['evade_probability']['value'][0],
+                                   config['evade_probability']['value'][1]), 2),
+                'hit_probability': round(
+                    random.uniform(config['hit_probability']['value'][0],
+                                   config['hit_probability']['value'][1]),
+                    2),
+                'heal': random.randint(config['heal']['value'][0],
+                                       config['heal']['value'][1]),
+            }
+
+            new_champ.max_life = new_champ.stats['life']
+
+            brawlers.append(new_champ)  # (290)
+
+        return brawlers
+
+    @staticmethod
+    def spawn_soldiers(tribe, stats_configuration):
+        """
+        Spawnear los Soldiers y asignar sus habilidades según la pool de habilidades de Soldiers
+        """
+        brawlers = []
+
+        config = stats_configuration['configs']['soldiers'][tribe.key]['stats']
+
+        for i in range(8):  # TODO: Sustituir por número de Soldiers from general_config
+            new_soldier = Soldier(f"Soldier{random.randint(0, 5000)}",
+                                  tribe, st.session_state['GLOBAL_TIERS'][2], random.randint(0, 1))
+
+            # Set stats
+            new_soldier.stats = {
+                'life': random.randint(config['life']['value'][0],
+                                       config['life']['value'][1]),
+                'base_attack': random.randint(config['base_attack']['value'][0],
+                                              config['base_attack']['value'][1]),
+                'num_attacks': random.randint(config['num_attacks']['value'][0],
+                                              config['num_attacks']['value'][1]),
+
+                'evade_probability': round(
+                    random.uniform(config['evade_probability']['value'][0],
+                                   config['evade_probability']['value'][1]), 2),
+                'hit_probability': round(
+                    random.uniform(config['hit_probability']['value'][0],
+                                   config['hit_probability']['value'][1]),
+                    2),
+                'heal': random.randint(config['heal']['value'][0],
+                                       config['heal']['value'][1]),
+            }
+
+            new_soldier.max_life = new_soldier.stats['life']
+
+
+            brawlers.append(new_soldier)  # (290)
+
+        return brawlers
+
     def get_random_brawler(self) -> Brawler:
         if len(self.alive_brawlers) > 0:
             return random.choice(self.alive_brawlers)
 
     def depose_brawler(self, brawler: Brawler):
+        # TODO: Gestionar acciones en diferido a la muerte del brawler
+        #  (i.e., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda.
+        #  Cuando mueras, todos los punks ganan Y% en todas las habilidades.)
         self.alive_brawlers.remove(brawler)
         self.casualties.append(brawler)
 
 
 # Instantiate Singletons
+# Tribe Manager
 tribe_manager = TribeManager()

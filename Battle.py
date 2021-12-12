@@ -27,7 +27,6 @@ class BattleManager(metaclass=Singleton):
         slots = sample(self.slots, len(self.slots))
         for s, t in zip(slots, tribe_manager.tribes):
             t.slot = s
-        tribe_manager.tribes.sort(key=lambda x: x.slot)
 
     def get_random_victim(self):
         victims_pool = list(itertools.chain.from_iterable(
@@ -41,17 +40,22 @@ class BattleManager(metaclass=Singleton):
 
         # b. El Brawler defensor responde al ataque
         # Se aplican % de acierto y evasión, el daño será de un valor entre 40 y 60% del daño total del atacado.
-        if victim.life > 0:
+        if victim.stats['life'] > 0:
             victim.counter_attack(brwlr)
 
         # TODO c. Se ejecutan las habilidades [...]
+        # if brwlr.stats['life'] > 0:
+        #     brwlr.execute_abilities(victim, self.alive_tribes)
+
+        # TODO: Gestionar el tema de restar rondas a los buffs / debuffs de todos los brawlers, invulerabilidad, etc.
+        # sum(buff['value'] for buff in self.buff['base_attack'])
 
         # Checks de salud (matar brawlers)
-        if brwlr.life <= 0:
+        if brwlr.stats['life'] <= 0:
             print('Atacante ha muerto')
             brwlr.tribe.army.depose_brawler(brwlr)
 
-        if victim.life <= 0:
+        if victim.stats['life'] <= 0:
             print('Víctima ha muerto')
             victim.tribe.army.depose_brawler(victim)
 
@@ -70,7 +74,7 @@ class BattleManager(metaclass=Singleton):
 
     @staticmethod
     def healing_phase(brwlr):
-        if brwlr.life > 0:
+        if brwlr.stats['life'] > 0:
             brwlr.healing()
 
     def main_battle_loop(self, tribe_manager):
@@ -106,7 +110,7 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].code(f"""Round {self.round_number}: Info""")
             cols[1].code(
-                f"""Average Health: {[(tr.name, int(np.mean([br.life for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
+                f"""Average Health: {[(tr.name, int(np.mean([br.stats['life'] for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 
