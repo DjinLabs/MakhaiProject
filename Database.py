@@ -17,7 +17,7 @@ class DatabaseManager(metaclass=Singleton):
 
     def initialize_connection(self):
         self.client = pymongo.MongoClient(
-            f"mongodb+srv://admin:{st.secrets['mongo']['password']}@cluster0.78wex.mongodb.net/UrbanTribes"
+            f"mongodb+srv://{st.secrets['mongo']['username']}:{st.secrets['mongo']['password']}@cluster0.78wex.mongodb.net/UrbanTribes"
             f"?retryWrites=true&w=majority")
         self.db = self.client['UrbanTribes']
         self.config_collection = self.db.configuration
