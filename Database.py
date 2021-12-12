@@ -19,6 +19,7 @@ class DatabaseManager(metaclass=Singleton):
         self.initialize_connection()
 
     def initialize_connection(self):
+        print('Connecting to MongoDB...')
         self.client = pymongo.MongoClient(
             f"mongodb+srv://{self.user}:{self.password}@cluster0.78wex.mongodb.net/UrbanTribes"
             f"?retryWrites=true&w=majority")
