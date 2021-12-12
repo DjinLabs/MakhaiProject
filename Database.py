@@ -28,6 +28,7 @@ class DatabaseManager(metaclass=Singleton):
             self.config_collection = self.db.configuration
             self.brawlers_collection = self.db.brawlers
             self.abilities_collection = self.db.abilities
+            print(self.client.server_info())
         elif self.client.server_info()['ok'] == 1.0:
             print('Already connected to MongoDB')
         else:
