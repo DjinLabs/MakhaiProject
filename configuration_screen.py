@@ -95,6 +95,8 @@ def abilities_config_expander(tribe_manager: TribeManager, tribes_dict: dict):
     # TODO: Entonces en la config no solo será tocable el stat en sí (en este caso por ejemplo el daño) si no también
     #  lo relativo a los targets (en este caso el número de targets), me lo apunto por ahí
 
+    # TODO: Añadir número de turnos a las configs de las habilidades con número de turnos e.g., Yaoi
+
     with st.expander('Abilities configuration'):
         selected_tier = st.selectbox('Select a tier',
                                      [tier.title() for tier in st.session_state['GLOBAL_TIERS']],

@@ -44,8 +44,8 @@ class BattleManager(metaclass=Singleton):
             victim.counter_attack(brwlr)
 
         # TODO c. Se ejecutan las habilidades [...]
-        # if brwlr.stats['life'] > 0:
-        #     brwlr.execute_abilities(victim, self.alive_tribes)
+        if brwlr.stats['life'] > 0:
+            brwlr.execute_abilities(victim, self.alive_tribes)
 
         # TODO: Gestionar el tema de restar rondas a los buffs / debuffs de todos los brawlers, invulerabilidad, etc.
         # sum(buff['value'] for buff in self.buff['base_attack'])
@@ -110,7 +110,8 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].code(f"""Round {self.round_number}: Info""")
             cols[1].code(
-                f"""Average Health: {[(tr.name, int(np.mean([br.stats['life'] for br in tr.army.alive_brawlers]))) for tr in self.alive_tribes]}""")
+                f"""Average Health: {[(tr.name, int(np.mean([br.stats['life'] for br in tr.army.alive_brawlers]))) for
+                                      tr in self.alive_tribes]}""")
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 

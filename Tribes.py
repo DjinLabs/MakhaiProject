@@ -3,6 +3,8 @@ from Database import db_manager
 from Singleton import Singleton
 import streamlit as st
 import random
+import itertools
+import numpy as np
 from numpy.random import choice
 from Abilities import AbilityManager, ability_manager
 
@@ -11,9 +13,6 @@ class TribeManager(metaclass=Singleton):
     def __init__(self):
         self.tribes = None
         self.tribe_names = None
-
-    # def __del__(self):
-    #     print(f"The TRIBEMANAGER object is getting DELETED: {self}")
 
     def create_tribes(self, tribes_dict):
         if self.tribes is None:
@@ -29,6 +28,7 @@ class TribeManager(metaclass=Singleton):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
                 tribe.army.spawn_army(tribe)
+        1 / 0
         return True
 
 
@@ -40,9 +40,6 @@ class Tribe:
         self.army: Army = Army()
         self.eliminated: bool = False
 
-    # def __del__(self):
-    #     print(f"The TRIBE object is getting DELETED: {self}")
-
 
 class Brawler:
     def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1, *args):
@@ -53,7 +50,10 @@ class Brawler:
         self.sex: int = sex
 
         # Buff / Debuff
-        # Objeto interno: {'value': 0, 'rounds': 0}
+        # Objeto interno: {'shift': 0, 'rounds': 0}
+        # TODO: Creo que una manera de gestionar los cambios aditivos sería añadir un attribute "additive" o
+        #  "cummulative" en este objeto (e.g., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda)
+        #  obviamente también en la ability así que habrá que cambiar en BD y en AlterStat
         self.buff = {
             'life': [],
             'base_attack': [],
@@ -63,16 +63,18 @@ class Brawler:
             'heal': [],
         }
 
-        # Invulnerability and evasion
-        self.invulnerability = {
+        # Invulnerability and Excllusion
+        self.invulnerability = {  # TODO: Check de este attribute por cada vez que se le haga daño a un brawler
             'invulnerable': False,
-            'invulnerable:_to': [],
+            'invulnerable_to': [],
             'rounds': 0,
         }
         self.exclusion = {
+            # TODO: Check de este attribute por cada cosa que se le haga a un brawler, también para ser elegido como atacante o víctima etc
             'excluded': False,
             'rounds': 0,
         }
+        self.skip_abilities = False  # TODO: Check de este attribute por cada habilidad a ejecutar, se resetea al final de ronda
 
         # Stats
         self.stats = dict()
@@ -96,6 +98,9 @@ class Brawler:
 
     def execute_abilities(self, victim, alive_tribes):
         # Pick a random ability
+
+        # TODO: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
+
         ability = random.choice(
             self.abilities)  # TODO: Aplicar softmax a la probabilidad de pick de las habilidades y tal
         print(ability)
@@ -120,13 +125,35 @@ class Champion(Brawler):
         super().__init__(name, tribe, tier_key, sex)
         # self.assign_abilities()
 
-    def assign_abilities(self):
+    def pick_abilities(self):
         """
         Los campeones tienen 3 habilidades escogidas aleatoriamente de una base de 9
         de las 3 escogidas, máximo 1 puede ser negativa.
+        Ídem a Soldiers pero lo dejamos en dos métodos por si acaso cambia en el futuro (se podría hacer con el parent)
         """
-        print(ability_manager.ability_pool[self.tier_key])
-        # TODO
+        # print('Picking abilities for Champion: ' + self.name)
+        pool = []
+        for ab_tup in ability_manager.ability_pool:
+            # Shared info in both elems from tuple
+            if ab_tup[0].base_ability.sex == self.sex and ab_tup[0].base_ability.tribe == self.tribe.key \
+                    and ab_tup[0].base_ability.tier == st.session_state['GLOBAL_TIERS'].index(self.tier_key):
+                # print(f'Added {ab_tup[0].base_ability.name} ability to pool')
+                pool.append(ab_tup)
+
+        num_negative = 0
+        while len(self.abilities) < 3:
+            ch = pool[choice(len(pool),
+                             replace=False)]  # TODO: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+            if ch[0].base_ability.positive or num_negative < 1:
+                num_negative += 1
+                self.abilities.append(ch)
+                pool.remove(ch)
+            elif ch[0].base_ability.positive:
+                self.abilities.append(ch)
+                pool.remove(ch)
+            else:  # Habilidad negativa y ya se ha cumplido el cupo
+                pool.remove(ch)
+        # print(f'Picked abilities for Champion: {self.name}: {[p[0].base_ability.name for p in self.abilities]}')
 
 
 class Soldier(Brawler):
@@ -134,13 +161,35 @@ class Soldier(Brawler):
         super().__init__(name, tribe, tier_key, sex)
         # self.assign_abilities()
 
-    def assign_abilities(self, ):
+    def pick_abilities(self):
         """
         Los soldados tienen 3 habilidades escogidas aleatoriamente de una base de 10
         de las 3 escogidas, máximo 2 pueden ser negativas.
+        Ídem a Champions pero lo dejamos en dos métodos por si acaso cambia en el futuro (se podría hacer con el parent)
         """
-        # @TODO
-        print(ability_manager.ability_pool[self.tier_key])
+        # print('Picking abilities for Soldider: ' + self.name)
+        pool = []
+        for ab_tup in ability_manager.ability_pool:
+            # Shared info in both elems from tuple
+            if ab_tup[0].base_ability.sex == self.sex and ab_tup[0].base_ability.tribe == self.tribe.key \
+                    and ab_tup[0].base_ability.tier == st.session_state['GLOBAL_TIERS'].index(self.tier_key):
+                # print(f'Added {ab_tup[0].base_ability.name} ability to pool')
+                pool.append(ab_tup)
+
+        num_negative = 0
+        while len(self.abilities) < 3:
+            ch = pool[choice(len(pool),
+                             replace=False)]  # TODO: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+            if ch[0].base_ability.positive or num_negative < 1:
+                num_negative += 1
+                self.abilities.append(ch)
+                pool.remove(ch)
+            elif ch[0].base_ability.positive:
+                self.abilities.append(ch)
+                pool.remove(ch)
+            else:  # Habilidad negativa y ya se ha cumplido el cupo
+                pool.remove(ch)
+        print(f'Picked abilities for Soldier: {self.name}: {[p[0].base_ability.name for p in self.abilities]}')
 
 
 class Army:
@@ -159,7 +208,7 @@ class Army:
         :return: Populate the self.brawlers list with new brawlers
         (with the specific combination of Gods, Heroes, Champìons and Soldiers)
         """
-        print(f"Spawning a new army of {tribe.key} -> {tribe.name} in slot {tribe.slot}")
+        # print(f"Spawning a new army of {tribe.key} -> {tribe.name} in slot {tribe.slot}")
 
         # @TODO: Implementar la asignación de habilidades desde el pool de cada tier etc...
 
@@ -188,7 +237,7 @@ class Army:
         gods = list(db_manager.get_gods(tribe_key=tribe.key))
 
         for god in gods:
-            print(f'Spawning God: {god["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][god["tribe"]]}')
+            # print(f'Spawning God: {god["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][god["tribe"]]}')
             new_god = God(god['name'], tribe, st.session_state['GLOBAL_TIERS'][god['tier']])
 
             # Set stats
@@ -220,7 +269,7 @@ class Army:
         config = stats_configuration['configs']['heroes'][tribe.key]['stats']
 
         for hero in heroes:
-            print(f'Spawning Hero: {hero["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][hero["tribe"]]}')
+            # print(f'Spawning Hero: {hero["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][hero["tribe"]]}')
             new_hero = Hero(hero['name'], tribe, st.session_state['GLOBAL_TIERS'][hero['tier']], hero['sex'])
 
             # Set stats
@@ -261,8 +310,17 @@ class Army:
         config = stats_configuration['configs']['champions'][tribe.key]['stats']
 
         for i in range(4):  # TODO: Sustituir por número de Champions from general_config
-            new_champ = Champion(f"Champion{random.randint(0, 2500)}",
-                                 tribe, st.session_state['GLOBAL_TIERS'][2], random.randint(0, 1))
+
+            sex = random.randint(0, 1) if tribe.key != 'tribe1' else -1
+            if sex == 0:
+                pre_name = tribe.name[:-2].title() + "o"
+            elif sex == 1:
+                pre_name = tribe.name[:-2].title() + "a"
+            else:
+                pre_name = tribe.name[:-1].title()
+
+            new_champ = Champion(f"{pre_name}Champion{random.randint(0, 2500)}",
+                                 tribe, st.session_state['GLOBAL_TIERS'][2], sex)
 
             # Set stats
             new_champ.stats = {
@@ -286,6 +344,8 @@ class Army:
 
             new_champ.max_life = new_champ.stats['life']
 
+            new_champ.pick_abilities()
+
             brawlers.append(new_champ)  # (290)
 
         return brawlers
@@ -300,8 +360,17 @@ class Army:
         config = stats_configuration['configs']['soldiers'][tribe.key]['stats']
 
         for i in range(8):  # TODO: Sustituir por número de Soldiers from general_config
-            new_soldier = Soldier(f"Soldier{random.randint(0, 5000)}",
-                                  tribe, st.session_state['GLOBAL_TIERS'][2], random.randint(0, 1))
+
+            sex = random.randint(0, 1) if tribe.key != 'tribe1' else -1
+            if sex == 0:
+                pre_name = tribe.name[:-2].title() + "o"
+            elif sex == 1:
+                pre_name = tribe.name[:-2].title() + "a"
+            else:
+                pre_name = tribe.name[:-1].title()
+
+            new_soldier = Soldier(f"{pre_name}Soldier{random.randint(0, 5000)}",
+                                  tribe, st.session_state['GLOBAL_TIERS'][3], sex)
 
             # Set stats
             new_soldier.stats = {
@@ -325,6 +394,7 @@ class Army:
 
             new_soldier.max_life = new_soldier.stats['life']
 
+            new_soldier.pick_abilities()
 
             brawlers.append(new_soldier)  # (290)
 

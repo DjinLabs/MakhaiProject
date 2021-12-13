@@ -16,7 +16,7 @@ class DatabaseManager(metaclass=Singleton):
         self.abilities_collection = None
 
         # DB Initialization
-        # self.initialize_connection() Does not work with streamlit
+        self.initialize_connection()
 
     def initialize_connection(self):
         if self.client is None:
@@ -28,7 +28,7 @@ class DatabaseManager(metaclass=Singleton):
             self.config_collection = self.db.configuration
             self.brawlers_collection = self.db.brawlers
             self.abilities_collection = self.db.abilities
-            print(self.client.server_info())
+            # print(self.client.server_info())
         elif self.client.server_info()['ok'] == 1.0:
             print('Already connected to MongoDB')
         else:
