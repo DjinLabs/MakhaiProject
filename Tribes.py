@@ -22,13 +22,12 @@ class TribeManager(metaclass=Singleton):
             for tribe_key, tribe_name in tribes_dict.items():
                 self.tribes.append(Tribe(tribe_key, tribe_name))
             print('Assigning slots...')
-            battle_manager.get_slots(tribe_manager)  # @ TODO: Probablemente quitar de aqui
+            battle_manager.get_slots(tribe_manager)  # @ TODO [preAlpha 0.3]: Probablemente quitar de aqui
 
     def create_armies(self):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
                 tribe.army.spawn_army(tribe)
-        1 / 0
         return True
 
 
@@ -51,7 +50,7 @@ class Brawler:
 
         # Buff / Debuff
         # Objeto interno: {'shift': 0, 'rounds': 0}
-        # TODO: Creo que una manera de gestionar los cambios aditivos sería añadir un attribute "additive" o
+        # TODO [preAlpha 0.3]: Creo que una manera de gestionar los cambios aditivos sería añadir un attribute "additive" o
         #  "cummulative" en este objeto (e.g., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda)
         #  obviamente también en la ability así que habrá que cambiar en BD y en AlterStat
         self.buff = {
@@ -64,23 +63,23 @@ class Brawler:
         }
 
         # Invulnerability and Excllusion
-        self.invulnerability = {  # TODO: Check de este attribute por cada vez que se le haga daño a un brawler
+        self.invulnerability = {  # TODO [preAlpha 0.2]: Check de este attribute por cada vez que se le haga daño a un brawler
             'invulnerable': False,
             'invulnerable_to': [],
             'rounds': 0,
         }
         self.exclusion = {
-            # TODO: Check de este attribute por cada cosa que se le haga a un brawler, también para ser elegido como atacante o víctima etc
+            # TODO [preAlpha 0.2]: Check de este attribute por cada cosa que se le haga algo un brawler, también para ser elegido como atacante o víctima etc
             'excluded': False,
             'rounds': 0,
         }
-        self.skip_abilities = False  # TODO: Check de este attribute por cada habilidad a ejecutar, se resetea al final de ronda
+        self.skip_abilities = False  # TODO [preAlpha 0.2]: Check de este attribute por cada habilidad a ejecutar, se resetea al final de ronda
 
         # Stats
         self.stats = dict()
         self.max_life = None
 
-        # Abilities # TODO: Rellenar esto desde el constructor de God/Champion etc
+        # Abilities
         self.abilities = []
 
     def attack(self, victim):
@@ -99,10 +98,10 @@ class Brawler:
     def execute_abilities(self, victim, alive_tribes):
         # Pick a random ability
 
-        # TODO: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
+        # TODO [PreAlpha 0.2]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
 
         ability = random.choice(
-            self.abilities)  # TODO: Aplicar softmax a la probabilidad de pick de las habilidades y tal
+            self.abilities)  # TODO [PreAlpha 0.3]: Aplicar softmax a la probabilidad de pick de las habilidades y tal
         print(ability)
         ability.cast_ability(victim, alive_tribes)
 
@@ -129,7 +128,6 @@ class Champion(Brawler):
         """
         Los campeones tienen 3 habilidades escogidas aleatoriamente de una base de 9
         de las 3 escogidas, máximo 1 puede ser negativa.
-        Ídem a Soldiers pero lo dejamos en dos métodos por si acaso cambia en el futuro (se podría hacer con el parent)
         """
         # print('Picking abilities for Champion: ' + self.name)
         pool = []
@@ -143,7 +141,7 @@ class Champion(Brawler):
         num_negative = 0
         while len(self.abilities) < 3:
             ch = pool[choice(len(pool),
-                             replace=False)]  # TODO: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+                             replace=False)]  # TODO [PreAlpha 0.3]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
             if ch[0].base_ability.positive or num_negative < 1:
                 num_negative += 1
                 self.abilities.append(ch)
@@ -165,7 +163,6 @@ class Soldier(Brawler):
         """
         Los soldados tienen 3 habilidades escogidas aleatoriamente de una base de 10
         de las 3 escogidas, máximo 2 pueden ser negativas.
-        Ídem a Champions pero lo dejamos en dos métodos por si acaso cambia en el futuro (se podría hacer con el parent)
         """
         # print('Picking abilities for Soldider: ' + self.name)
         pool = []
@@ -179,8 +176,8 @@ class Soldier(Brawler):
         num_negative = 0
         while len(self.abilities) < 3:
             ch = pool[choice(len(pool),
-                             replace=False)]  # TODO: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
-            if ch[0].base_ability.positive or num_negative < 1:
+                             replace=False)]  # TODO [preAlpha 0.3]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+            if ch[0].base_ability.positive or num_negative < 2:
                 num_negative += 1
                 self.abilities.append(ch)
                 pool.remove(ch)
@@ -189,7 +186,7 @@ class Soldier(Brawler):
                 pool.remove(ch)
             else:  # Habilidad negativa y ya se ha cumplido el cupo
                 pool.remove(ch)
-        print(f'Picked abilities for Soldier: {self.name}: {[p[0].base_ability.name for p in self.abilities]}')
+        # print(f'Picked abilities for Soldier: {self.name}: {[p[0].base_ability.name for p in self.abilities]}')
 
 
 class Army:
@@ -210,18 +207,18 @@ class Army:
         """
         # print(f"Spawning a new army of {tribe.key} -> {tribe.name} in slot {tribe.slot}")
 
-        # @TODO: Implementar la asignación de habilidades desde el pool de cada tier etc...
-
         brawlers = []
         stats_configuration = list(db_manager.config_collection.find({"custom_id": "stats_configuration"}))[0]
+        gen_configuration = list(db_manager.get_general_configuration())[0]
+
         # Spawning the Gods
         brawlers.extend(self.spawn_gods(tribe))
         # Spawning the Heroes
         brawlers.extend(self.spawn_heroes(tribe, stats_configuration))
 
         # Spawning the Champions and Soldiers
-        brawlers.extend(self.spawn_champions(tribe, stats_configuration))
-        brawlers.extend(self.spawn_soldiers(tribe, stats_configuration))
+        brawlers.extend(self.spawn_champions(tribe, stats_configuration, gen_configuration))
+        brawlers.extend(self.spawn_soldiers(tribe, stats_configuration, gen_configuration))
 
         random.shuffle(brawlers)
 
@@ -254,8 +251,6 @@ class Army:
             new_god.max_life = god['stats']['life']['value']
 
             brawlers.append(new_god)
-
-            # TODO: Asignar su habilidad
 
         return brawlers
 
@@ -294,14 +289,12 @@ class Army:
 
             new_hero.max_life = new_hero.stats['life']
 
-            # TODO: Asignar su habilidad
-
             brawlers.append(new_hero)
 
         return brawlers
 
     @staticmethod
-    def spawn_champions(tribe, stats_configuration):
+    def spawn_champions(tribe, stats_configuration, gen_configuration):
         """
         Spawnear los Champions y asignar sus habilidades según la pool de habilidades de Champions
         """
@@ -309,7 +302,7 @@ class Army:
 
         config = stats_configuration['configs']['champions'][tribe.key]['stats']
 
-        for i in range(4):  # TODO: Sustituir por número de Champions from general_config
+        for i in range(gen_configuration['configs']['num_champions']['value']):
 
             sex = random.randint(0, 1) if tribe.key != 'tribe1' else -1
             if sex == 0:
@@ -351,7 +344,7 @@ class Army:
         return brawlers
 
     @staticmethod
-    def spawn_soldiers(tribe, stats_configuration):
+    def spawn_soldiers(tribe, stats_configuration, gen_configuration):
         """
         Spawnear los Soldiers y asignar sus habilidades según la pool de habilidades de Soldiers
         """
@@ -359,7 +352,7 @@ class Army:
 
         config = stats_configuration['configs']['soldiers'][tribe.key]['stats']
 
-        for i in range(8):  # TODO: Sustituir por número de Soldiers from general_config
+        for i in range(gen_configuration['configs']['num_soldiers']['value']):
 
             sex = random.randint(0, 1) if tribe.key != 'tribe1' else -1
             if sex == 0:
@@ -405,7 +398,7 @@ class Army:
             return random.choice(self.alive_brawlers)
 
     def depose_brawler(self, brawler: Brawler):
-        # TODO: Gestionar acciones en diferido a la muerte del brawler
+        # TODO [preAlpha 0.3]: Gestionar acciones en diferido a la muerte del brawler
         #  (i.e., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda.
         #  Cuando mueras, todos los punks ganan Y% en todas las habilidades.)
         self.alive_brawlers.remove(brawler)

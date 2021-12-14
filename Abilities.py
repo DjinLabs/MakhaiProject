@@ -14,7 +14,7 @@ class AbilityManager(metaclass=Singleton):
         self.load_abilities()
 
     def load_abilities(self):
-        # TODO: Creo que hay que llamarla junto con cualquier CreateArmies porque al spawneaer una unidad se pickean
+        # TODO [PreAlpha 0.2]: Creo que hay que llamarla junto con cualquier CreateArmies porque al spawneaer una unidad se pickean
         #  pero si ha cambiado algo en la config (cualquier stat) no estará actualizado
         print("Loading Abilities...")
 
@@ -93,7 +93,7 @@ class Ability:
         self.tribe: str = tribe
         self.tier: int = tier
         self.target_info: dict = target_info
-        self.executed: bool = False  # TODO: Para acciones en diferido (e.g., Cuando mueras, todos los punks ganan Y%
+        self.executed: bool = False  # TODO [PreAlpha 0.3]: Para acciones en diferido (e.g., Cuando mueras, todos los punks ganan Y%
         self.target = []
 
     def get_target(self):
@@ -202,7 +202,7 @@ class InvulnerabilityAbility:
     El brawler targeteado no puede recibir daño durante el número de rondas indicado
     """
 
-    # TODO: OJO porque si la Invulnerabilidad puede ser condicional hay que añadir un atributo para marcar la condicionalidad
+    # TODO [PreAlpha 0.3]: OJO porque si la Invulnerabilidad puede ser condicional hay que añadir un atributo para marcar la condicionalidad
     # https://docs.google.com/document/d/1oioVqQFppw7PkU3VXzyZ8YUdNjuzB84E/edit?disco=AAAATEMQpi8
     # Para eso ya tenemos el atributo "invulnerable_to" del att "invulnerability" de los Brawlers
 

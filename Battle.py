@@ -1,4 +1,6 @@
 import streamlit as st
+
+from Database import db_manager
 from Singleton import Singleton
 from random import sample, choice
 import itertools
@@ -13,12 +15,14 @@ class BattleManager(metaclass=Singleton):
         self.attacker = None
         self.round_number: int = 0
         self.slots = ['A', 'B', 'C', 'D']
-        self.damage_reduction = (0.4, 0.6)  # @TODO: Assign from config
+        self.damage_reduction = None
         self.alive_tribes: [] = []
         self.eliminated_tribes: [] = None
 
     def setup_battle(self, tribe_manager):
+        gen_config = list(db_manager.get_general_configuration())[0]
         self.round_number = 0
+        self.damage_reduction = gen_config['configs']['damage_reduction']['value']
         self.alive_tribes = [tr for tr in tribe_manager.tribes]  # All tribes are alive at the beginning of the battle
         self.eliminated_tribes = []
         print(f'Setting up battle...\nAlive Tribes: {[tr.name for tr in self.alive_tribes]}')
@@ -43,11 +47,11 @@ class BattleManager(metaclass=Singleton):
         if victim.stats['life'] > 0:
             victim.counter_attack(brwlr)
 
-        # TODO c. Se ejecutan las habilidades [...]
+        # TODO [preAlpha 0.2] c. Se ejecutan las habilidades [...]
         if brwlr.stats['life'] > 0:
             brwlr.execute_abilities(victim, self.alive_tribes)
 
-        # TODO: Gestionar el tema de restar rondas a los buffs / debuffs de todos los brawlers, invulerabilidad, etc.
+        # TODO [preAlpha 0.2]: Gestionar el tema de restar rondas a los buffs / debuffs de todos los brawlers, invulerabilidad, etc.
         # sum(buff['value'] for buff in self.buff['base_attack'])
 
         # Checks de salud (matar brawlers)
@@ -85,7 +89,7 @@ class BattleManager(metaclass=Singleton):
             self.round_number += 1
             print(f'Round {self.round_number}')
             # For each slot
-            for tribe in tribe_manager.tribes:  # TODO: Handle better the slots and battle order with BattleManager
+            for tribe in tribe_manager.tribes:  # TODO [preAlpha 0.3]: Handle better the slots and battle order with BattleManager
                 # Init round setup
                 self.attacker = tribe
 
@@ -115,7 +119,7 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 
-            # TODO 2. Se reubican aleatoriamente las tribus en los slots.
+            # TODO [preAlpha 0.3]. Se reubican aleatoriamente las tribus en los slots.
 
         if len(self.alive_tribes) == 1:
             cols[0].code(f'Event: {"End"}'), cols[1].code(
