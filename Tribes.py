@@ -3,10 +3,9 @@ from Database import db_manager
 from Singleton import Singleton
 import streamlit as st
 import random
-import itertools
 import numpy as np
 from numpy.random import choice
-from Abilities import AbilityManager, ability_manager
+from Abilities import ability_manager
 
 
 class TribeManager(metaclass=Singleton):
@@ -41,7 +40,7 @@ class Tribe:
 
 
 class Brawler:
-    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1, *args):
+    def __init__(self, name: str, tribe: Tribe, tier_key: int, sex: int = -1, *args):
         # General attributes
         self.name: str = name
         self.tribe: Tribe = tribe
@@ -63,7 +62,8 @@ class Brawler:
         }
 
         # Invulnerability and Excllusion
-        self.invulnerability = {  # TODO [preAlpha 0.2]: Check de este attribute por cada vez que se le haga daño a un brawler
+        self.invulnerability = {
+            # TODO [preAlpha 0.2]: Check de este attribute por cada vez que se le haga daño a un brawler
             'invulnerable': False,
             'invulnerable_to': [],
             'rounds': 0,
@@ -77,50 +77,54 @@ class Brawler:
 
         # Stats
         self.stats = dict()
-        self.max_life = None
 
         # Abilities
         self.abilities = []
 
     def attack(self, victim):
-        success_prob = max(self.stats['hit_probability'] * 1 - victim.stats['evade_probability'], 0)
+
+        success_prob = max(self.stats['hit_probability']['value'] * 1 - victim.stats['evade_probability']['value'], 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
-            victim.stats['life'] -= self.stats['base_attack']
+            victim.stats['life']['value'] -= self.stats['base_attack']['value']
 
     def counter_attack(self, victim):
-        success_prob = max(self.stats['hit_probability'] * 1 - victim.stats['evade_probability'], 0)
+        success_prob = max(self.stats['hit_probability']['value'] * 1 - victim.stats['evade_probability']['value'], 0)
         succcess = choice([True, False], p=[success_prob, 1 - success_prob])
         if succcess:
-            victim.stats['life'] -= self.stats['base_attack'] * round(
+            victim.stats['life']['value'] -= self.stats['base_attack']['value'] * round(
                 random.uniform(battle_manager.damage_reduction[0], battle_manager.damage_reduction[1]), 2)
 
     def execute_abilities(self, victim, alive_tribes):
         # Pick a random ability
 
-        # TODO [PreAlpha 0.2]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
-
-        ability = random.choice(
+        print(f'EXECUTE ABILITIES: {self.name} with abilities: {[a[0].base_ability.name for a in self.abilities]}')
+        ab_tuple = random.choice(
             self.abilities)  # TODO [PreAlpha 0.3]: Aplicar softmax a la probabilidad de pick de las habilidades y tal
-        print(ability)
-        ability.cast_ability(victim, alive_tribes)
+
+        print(f'Picked ability: {ab_tuple[0].base_ability.name}')
+
+        # TODO [PreAlpha 0.2]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
+        for ability in ab_tuple:
+            print(f'Now applying: {ability}')
+            ability.cast_ability(victim, alive_tribes)
 
     def healing(self):
-        self.stats['life'] += self.stats['heal']
+        self.stats['life']['value'] += max(self.stats['heal']['value'], self.stats['heal']['value'])
 
 
 class God(Brawler):
-    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1):
+    def __init__(self, name: str, tribe: Tribe, tier_key: int, sex: int = -1):
         super().__init__(name, tribe, tier_key, sex)
 
 
 class Hero(Brawler):
-    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int = -1):
+    def __init__(self, name: str, tribe: Tribe, tier_key: int, sex: int = -1):
         super().__init__(name, tribe, tier_key, sex)
 
 
 class Champion(Brawler):
-    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int):
+    def __init__(self, name: str, tribe: Tribe, tier_key: int, sex: int):
         super().__init__(name, tribe, tier_key, sex)
         # self.assign_abilities()
 
@@ -134,7 +138,7 @@ class Champion(Brawler):
         for ab_tup in ability_manager.ability_pool:
             # Shared info in both elems from tuple
             if ab_tup[0].base_ability.sex == self.sex and ab_tup[0].base_ability.tribe == self.tribe.key \
-                    and ab_tup[0].base_ability.tier == st.session_state['GLOBAL_TIERS'].index(self.tier_key):
+                    and ab_tup[0].base_ability.tier == self.tier_key:
                 # print(f'Added {ab_tup[0].base_ability.name} ability to pool')
                 pool.append(ab_tup)
 
@@ -142,6 +146,8 @@ class Champion(Brawler):
         while len(self.abilities) < 3:
             ch = pool[choice(len(pool),
                              replace=False)]  # TODO [PreAlpha 0.3]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+            for c in ch:
+                c.base_ability.brawler = self
             if ch[0].base_ability.positive or num_negative < 1:
                 num_negative += 1
                 self.abilities.append(ch)
@@ -155,7 +161,7 @@ class Champion(Brawler):
 
 
 class Soldier(Brawler):
-    def __init__(self, name: str, tribe: Tribe, tier_key: str, sex: int):
+    def __init__(self, name: str, tribe: Tribe, tier_key: int, sex: int):
         super().__init__(name, tribe, tier_key, sex)
         # self.assign_abilities()
 
@@ -169,7 +175,7 @@ class Soldier(Brawler):
         for ab_tup in ability_manager.ability_pool:
             # Shared info in both elems from tuple
             if ab_tup[0].base_ability.sex == self.sex and ab_tup[0].base_ability.tribe == self.tribe.key \
-                    and ab_tup[0].base_ability.tier == st.session_state['GLOBAL_TIERS'].index(self.tier_key):
+                    and ab_tup[0].base_ability.tier == self.tier_key:
                 # print(f'Added {ab_tup[0].base_ability.name} ability to pool')
                 pool.append(ab_tup)
 
@@ -177,6 +183,8 @@ class Soldier(Brawler):
         while len(self.abilities) < 3:
             ch = pool[choice(len(pool),
                              replace=False)]  # TODO [preAlpha 0.3]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+            for c in ch:
+                c.base_ability.brawler = self
             if ch[0].base_ability.positive or num_negative < 2:
                 num_negative += 1
                 self.abilities.append(ch)
@@ -235,20 +243,18 @@ class Army:
 
         for god in gods:
             # print(f'Spawning God: {god["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][god["tribe"]]}')
-            new_god = God(god['name'], tribe, st.session_state['GLOBAL_TIERS'][god['tier']])
+            new_god = God(god['name'], tribe, god['tier'])
 
             # Set stats
 
             new_god.stats = {
-                'life': god['stats']['life']['value'],
-                'base_attack': god['stats']['base_attack']['value'],
-                'num_attacks': god['stats']['num_attacks']['value'],
-                'evade_probability': god['stats']['evade_probability']['value'],
-                'hit_probability': god['stats']['hit_probability']['value'],
-                'heal': god['stats']['heal']['value'],
+                'life': {'max': god['stats']['life']['value'], 'value': god['stats']['life']['value']},
+                'base_attack': {'max': np.inf, 'value': god['stats']['base_attack']['value']},
+                'num_attacks': {'max': np.inf, 'value': god['stats']['num_attacks']['value']},
+                'evade_probability': {'max': 1.0, 'value': god['stats']['evade_probability']['value']},
+                'hit_probability': {'max': 1.0, 'value': god['stats']['hit_probability']['value']},
+                'heal': {'max': np.inf, 'value': god['stats']['heal']['value']},
             }
-
-            new_god.max_life = god['stats']['life']['value']
 
             brawlers.append(new_god)
 
@@ -265,29 +271,26 @@ class Army:
 
         for hero in heroes:
             # print(f'Spawning Hero: {hero["name"]} from tribe {st.session_state["GLOBAL_TRIBES_DICT"][hero["tribe"]]}')
-            new_hero = Hero(hero['name'], tribe, st.session_state['GLOBAL_TIERS'][hero['tier']], hero['sex'])
+            new_hero = Hero(hero['name'], tribe, hero['tier'], hero['sex'])
 
             # Set stats
+            life = random.randint(config['life']['value'][0], config['life']['value'][1])
             new_hero.stats = {
-                'life': random.randint(config['life']['value'][0],
-                                       config['life']['value'][1]),
-                'base_attack': random.randint(config['base_attack']['value'][0],
-                                              config['base_attack']['value'][1]),
-                'num_attacks': random.randint(config['num_attacks']['value'][0],
-                                              config['num_attacks']['value'][1]),
+                'life': {'max': life, 'value': life},
+                'base_attack': {'max': np.inf, 'value': random.randint(config['base_attack']['value'][0],
+                                                                       config['base_attack']['value'][1])},
+                'num_attacks': {'max': np.inf, 'value': random.randint(config['num_attacks']['value'][0],
+                                                                       config['num_attacks']['value'][1])},
 
-                'evade_probability': round(
+                'evade_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['evade_probability']['value'][0],
-                                   config['evade_probability']['value'][1]), 2),
-                'hit_probability': round(
+                                   config['evade_probability']['value'][1]), 2)},
+                'hit_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['hit_probability']['value'][0],
-                                   config['hit_probability']['value'][1]),
-                    2),
-                'heal': random.randint(config['heal']['value'][0],
-                                       config['heal']['value'][1]),
+                                   config['hit_probability']['value'][1]), 2)},
+                'heal': {'max': np.inf, 'value': random.randint(config['heal']['value'][0],
+                                                                config['heal']['value'][1])},
             }
-
-            new_hero.max_life = new_hero.stats['life']
 
             brawlers.append(new_hero)
 
@@ -313,29 +316,26 @@ class Army:
                 pre_name = tribe.name[:-1].title()
 
             new_champ = Champion(f"{pre_name}Champion{random.randint(0, 2500)}",
-                                 tribe, st.session_state['GLOBAL_TIERS'][2], sex)
+                                 tribe, 2, sex)
 
             # Set stats
+            life = random.randint(config['life']['value'][0], config['life']['value'][1])
             new_champ.stats = {
-                'life': random.randint(config['life']['value'][0],
-                                       config['life']['value'][1]),
-                'base_attack': random.randint(config['base_attack']['value'][0],
-                                              config['base_attack']['value'][1]),
-                'num_attacks': random.randint(config['num_attacks']['value'][0],
-                                              config['num_attacks']['value'][1]),
+                'life': {'max': life, 'value': life},
+                'base_attack': {'max': np.inf, 'value': random.randint(config['base_attack']['value'][0],
+                                                                       config['base_attack']['value'][1])},
+                'num_attacks': {'max': np.inf, 'value': random.randint(config['num_attacks']['value'][0],
+                                                                       config['num_attacks']['value'][1])},
 
-                'evade_probability': round(
+                'evade_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['evade_probability']['value'][0],
-                                   config['evade_probability']['value'][1]), 2),
-                'hit_probability': round(
+                                   config['evade_probability']['value'][1]), 2)},
+                'hit_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['hit_probability']['value'][0],
-                                   config['hit_probability']['value'][1]),
-                    2),
-                'heal': random.randint(config['heal']['value'][0],
-                                       config['heal']['value'][1]),
+                                   config['hit_probability']['value'][1]), 2)},
+                'heal': {'max': np.inf, 'value': random.randint(config['heal']['value'][0],
+                                                                config['heal']['value'][1])},
             }
-
-            new_champ.max_life = new_champ.stats['life']
 
             new_champ.pick_abilities()
 
@@ -363,29 +363,26 @@ class Army:
                 pre_name = tribe.name[:-1].title()
 
             new_soldier = Soldier(f"{pre_name}Soldier{random.randint(0, 5000)}",
-                                  tribe, st.session_state['GLOBAL_TIERS'][3], sex)
+                                  tribe, 3, sex)
 
             # Set stats
+            life = random.randint(config['life']['value'][0], config['life']['value'][1])
             new_soldier.stats = {
-                'life': random.randint(config['life']['value'][0],
-                                       config['life']['value'][1]),
-                'base_attack': random.randint(config['base_attack']['value'][0],
-                                              config['base_attack']['value'][1]),
-                'num_attacks': random.randint(config['num_attacks']['value'][0],
-                                              config['num_attacks']['value'][1]),
+                'life': {'max': life, 'value': life},
+                'base_attack': {'max': np.inf, 'value': random.randint(config['base_attack']['value'][0],
+                                                                       config['base_attack']['value'][1])},
+                'num_attacks': {'max': np.inf, 'value': random.randint(config['num_attacks']['value'][0],
+                                                                       config['num_attacks']['value'][1])},
 
-                'evade_probability': round(
+                'evade_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['evade_probability']['value'][0],
-                                   config['evade_probability']['value'][1]), 2),
-                'hit_probability': round(
+                                   config['evade_probability']['value'][1]), 2)},
+                'hit_probability': {'max': 1.0, 'value': round(
                     random.uniform(config['hit_probability']['value'][0],
-                                   config['hit_probability']['value'][1]),
-                    2),
-                'heal': random.randint(config['heal']['value'][0],
-                                       config['heal']['value'][1]),
+                                   config['hit_probability']['value'][1]), 2)},
+                'heal': {'max': np.inf, 'value': random.randint(config['heal']['value'][0],
+                                                                config['heal']['value'][1])},
             }
-
-            new_soldier.max_life = new_soldier.stats['life']
 
             new_soldier.pick_abilities()
 

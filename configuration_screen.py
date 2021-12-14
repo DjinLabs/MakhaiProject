@@ -37,7 +37,7 @@ def general_config_expander(tribe_manager: TribeManager):
 def stats_config_expander(tribe_manager: TribeManager, tribes_dict: dict):
     with st.expander('Stats configuration'):
         selected_tier = st.selectbox('Select a tier',
-                                     [tier.title() for tier in st.session_state['GLOBAL_TIERS']],
+                                     [tier.title() for tier in st.session_state['GLOBAL_TIERS'].values()],
                                      key='stats_selected_tier')
         tier = selected_tier.lower()
 
@@ -99,7 +99,7 @@ def abilities_config_expander(tribe_manager: TribeManager, tribes_dict: dict):
 
     with st.expander('Abilities configuration'):
         selected_tier = st.selectbox('Select a tier',
-                                     [tier.title() for tier in st.session_state['GLOBAL_TIERS']],
+                                     [tier.title() for tier in st.session_state['GLOBAL_TIERS'].values()],
                                      key='abilities_selected_tier')
         tier = selected_tier.lower()
 

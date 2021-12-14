@@ -1,6 +1,8 @@
 import warnings
 
 import streamlit as st
+
+from Battle import battle_manager
 from Singleton import Singleton
 from Database import db_manager
 
@@ -38,7 +40,7 @@ class AbilityManager(metaclass=Singleton):
 
                     new_ability.append(
                         AlterStatAbility(shift=stats['shift'], stat=effects['stat'], rounds=stats['rounds'],
-                                         base_ability=base_ability),)
+                                         base_ability=base_ability), )
 
                 elif ab_type == 'DirectDamage':
                     base_ability = Ability(name=ability['name'], sex=ability['sex'],
@@ -46,7 +48,7 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        DirectDamageAbility(damage=stats['damage'], base_ability=base_ability),)
+                        DirectDamageAbility(damage=stats['damage'], base_ability=base_ability), )
 
                 elif ab_type == 'Kill':
                     base_ability = Ability(name=ability['name'], sex=ability['sex'],
@@ -54,7 +56,7 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        KillAbility(base_ability=base_ability),)
+                        KillAbility(base_ability=base_ability), )
 
                 elif ab_type == 'Exclusion':
                     base_ability = Ability(name=ability['name'], sex=ability['sex'],
@@ -62,7 +64,7 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        ExclusionAbility(rounds=stats['rounds'], base_ability=base_ability),)
+                        ExclusionAbility(rounds=stats['rounds'], base_ability=base_ability), )
 
                 elif ab_type == 'Skip':
                     base_ability = Ability(name=ability['name'], sex=ability['sex'],
@@ -70,7 +72,7 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        SkipAbility(rounds=stats['rounds'], base_ability=base_ability),)
+                        SkipAbility(rounds=stats['rounds'], base_ability=base_ability), )
 
                 elif ab_type == 'Invulnerability':
                     base_ability = Ability(name=ability['name'], sex=ability['sex'],
@@ -78,7 +80,7 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        InvulnerabilityAbility(rounds=stats['rounds'], base_ability=base_ability),)
+                        InvulnerabilityAbility(rounds=stats['rounds'], base_ability=base_ability), )
                 else:
                     warnings.warn(f"Ability type not implemented: {ab_type}")
 
@@ -94,16 +96,27 @@ class Ability:
         self.tier: int = tier
         self.target_info: dict = target_info
         self.executed: bool = False  # TODO [PreAlpha 0.3]: Para acciones en diferido (e.g., Cuando mueras, todos los punks ganan Y%
+        self.brawler = None
         self.target = []
 
-    def get_target(self):
+    def get_target(self, victim, alive_tribes):
         """
         At battle loop, with the self.target_info information
         :return: self.target correctly filled
         """
-        pass
+        if self.target_info['self']:  # It's me!
+            self.target.append(self.brawler)
+        else:
+            for enemies in self.target_info['enemies']:
+                if enemies['number'] != 0:  # Get enemies
+                    self.target = battle_manager.get_random_enemies(tiers=enemies['tiers'], tribes=enemies['tribes'],
+                                                                    sexes=enemies['sex'], number=enemies['number'])
+            for allies in self.target_info['allies']:
+                if allies['number'] != 0:  # Get allies
+                    self.target = battle_manager.get_random_allies(tiers=allies['tiers'], sexes=allies['sex'],
+                                                                   number=allies['number'])
 
-    def cast_ability(self, *args):
+    def cast_ability(self):
         pass
 
 
@@ -113,12 +126,15 @@ class DirectDamageAbility:
         self.damage = damage
 
     def verbose(self):
-        print(f'Casting {self.base_ability.name} ability deals {self.damage} damage')
+        print(f'Casting {self.base_ability.name} ability deals {self.damage} damage '
+              f'to {[t.name for t in self.base_ability.target]}')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
-            target.stats['life'] -= self.damage
+            target.stats['life']['value'] -= self.damage
+        self.base_ability.target = []  # Clear targets
 
 
 class AlterStatAbility:
@@ -137,12 +153,18 @@ class AlterStatAbility:
             f'Casting {self.base_ability.name} ability shifting {self.stat} by {self.shift} '
             f'to {[t.name for t in self.base_ability.target]}')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
-            target.stats[self.stat] += self.shift
+            print(self.shift, type(self.shift))
+            target.stats[self.stat]['value'] += self.shift if self.shift != 'max' else target.stats[self.stat]['max']
+            target.stats[self.stat]['value'] = min(target.stats[self.stat]['max'],
+                                                   max(target.stats[self.stat]['value'], 0))
+
             if self.rounds > 0:  # If temporary buff/debuff hold info on buff attr from Brawler for further revert
                 target.buff[self.stat].append({'shift': self.shift, 'rounds': self.rounds})
+        self.base_ability.target = []  # Clear targets
 
 
 class KillAbility:
@@ -152,10 +174,13 @@ class KillAbility:
     def verbose(self):
         print(f'Casting {self.base_ability.name} ability kills {[t.name for t in self.base_ability.target]}')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.stats['life'] = 0
+
+        self.base_ability.target = []  # Clear targets
 
 
 class ExclusionAbility:
@@ -171,10 +196,13 @@ class ExclusionAbility:
         print(f'Casting {self.base_ability.name} ability excludes {[t.name for t in self.base_ability.target]} for'
               f' {self.rounds} rounds')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
+        self.verbose()
         for target in self.base_ability.target:
             target.exclusion['excluded'] = True
             target.exclusion['rounds'] = self.rounds
+        self.base_ability.target = []  # Clear targets
 
 
 class SkipAbility:
@@ -191,10 +219,12 @@ class SkipAbility:
             f'Casting {self.base_ability.name} ability skips next abiilities '
             f'for {[t.name for t in self.base_ability.target]}')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.skip_abilities = True
+        self.base_ability.target = []  # Clear targets
 
 
 class InvulnerabilityAbility:
@@ -214,11 +244,13 @@ class InvulnerabilityAbility:
         print(f'Casting {self.base_ability.name} ability invulnerates {[t.name for t in self.base_ability.target]} for'
               f' {self.rounds} rounds')
 
-    def cast_ability(self):
+    def cast_ability(self, victim, alive_tribes):
+        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.invulnerability['invulnerable'] = True
             target.invulnerability['rounds'] = self.rounds
+        self.base_ability.target = []  # Clear targets
 
 
 # Ability manager

@@ -2,7 +2,7 @@ import streamlit as st
 
 from Database import db_manager
 from Singleton import Singleton
-from random import sample, choice
+from random import sample, choice, uniform
 import itertools
 import inflect
 import numpy as np
@@ -32,10 +32,63 @@ class BattleManager(metaclass=Singleton):
         for s, t in zip(slots, tribe_manager.tribes):
             t.slot = s
 
-    def get_random_victim(self):
+    def get_random_enemies(self, tiers=None, tribes=None, sexes=None, number=1):
+
+        if tiers is None:
+            tiers = [0, 1, 2, 3]
+        if tribes is None:
+            tribes = ['tribe1', 'tribe2', 'tribe3', 'tribe4']
+        if sexes is None:
+            sexes = [-1, 0, 1]
+
         victims_pool = list(itertools.chain.from_iterable(
             [tr.army.alive_brawlers for tr in self.alive_tribes if tr != self.attacker]))
-        return choice(victims_pool) if victims_pool else None
+
+        victims = []
+        filtered_pool = []
+
+        for victim in victims_pool:
+            if victim.tier_key in tiers and victim.tribe.key in tribes and victim.sex in sexes:
+                filtered_pool.append(victim)
+
+        if isinstance(number, list):
+            if len(number) > 1:
+                pct = uniform(number[0], number[1])
+            else:
+                pct = number[0]
+            number = round(len(filtered_pool) * pct)
+        print(len(filtered_pool), number)
+        victims.extend(sample(filtered_pool, min(number, len(filtered_pool))))
+
+        return victims
+
+    def get_random_allies(self, tiers=None, sexes=None, number=1):
+
+        if tiers is None:
+            tiers = [0, 1, 2, 3]
+        if sexes is None:
+            sexes = [-1, 0, 1]
+
+        allies_pool = list(itertools.chain.from_iterable(
+            [tr.army.alive_brawlers for tr in self.alive_tribes if tr == self.attacker]))
+
+        allies = []
+        filtered_pool = []
+
+        for ally in allies_pool:
+            if ally.tier_key in tiers and ally.sex in sexes:
+                filtered_pool.append(ally)
+
+        if isinstance(number, list):
+            if len(number) > 1:
+                pct = uniform(number[0], number[1])
+            else:
+                pct = number[0]
+            number = round(len(filtered_pool) * pct)
+        print(len(filtered_pool), number)
+        allies.extend(sample(filtered_pool, min(number, len(filtered_pool))))
+
+        return allies
 
     def wrestle(self, brwlr, victim):
         # a. Se produce el ataque básico, cuyo daño base está determinado en el Brawler
@@ -44,22 +97,23 @@ class BattleManager(metaclass=Singleton):
 
         # b. El Brawler defensor responde al ataque
         # Se aplican % de acierto y evasión, el daño será de un valor entre 40 y 60% del daño total del atacado.
-        if victim.stats['life'] > 0:
+        if victim.stats['life']['value'] > 0:
             victim.counter_attack(brwlr)
 
         # TODO [preAlpha 0.2] c. Se ejecutan las habilidades [...]
-        if brwlr.stats['life'] > 0:
+        if brwlr.stats['life']['value'] > 0 and len(
+                brwlr.abilities) > 0:  # TODO [preAlpha 0.3] Quitar condicion de no tener abilities xq todos tendran si ahora no tienen es xq no estan metidas en bd
             brwlr.execute_abilities(victim, self.alive_tribes)
 
         # TODO [preAlpha 0.2]: Gestionar el tema de restar rondas a los buffs / debuffs de todos los brawlers, invulerabilidad, etc.
         # sum(buff['value'] for buff in self.buff['base_attack'])
 
         # Checks de salud (matar brawlers)
-        if brwlr.stats['life'] <= 0:
+        if brwlr.stats['life']['value'] <= 0:
             print('Atacante ha muerto')
             brwlr.tribe.army.depose_brawler(brwlr)
 
-        if victim.stats['life'] <= 0:
+        if victim.stats['life']['value'] <= 0:
             print('Víctima ha muerto')
             victim.tribe.army.depose_brawler(victim)
 
@@ -78,7 +132,7 @@ class BattleManager(metaclass=Singleton):
 
     @staticmethod
     def healing_phase(brwlr):
-        if brwlr.stats['life'] > 0:
+        if brwlr.stats['life']['value'] > 0:
             brwlr.healing()
 
     def main_battle_loop(self, tribe_manager):
@@ -98,7 +152,7 @@ class BattleManager(metaclass=Singleton):
                 brwlr = self.attacker.army.get_random_brawler()  # Seleccionar un NFT random del primer slot
                 # 1.2 Select random NFT from rest of armies
                 if brwlr is not None:
-                    victim = self.get_random_victim()
+                    victim = self.get_random_enemies(number=1)[0]  # Here always one victim as number=1, so get first
 
                     if victim is not None:
                         # a. + b. + c. Gestión del reparto de mecos y habilidades
@@ -114,7 +168,8 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].code(f"""Round {self.round_number}: Info""")
             cols[1].code(
-                f"""Average Health: {[(tr.name, int(np.mean([br.stats['life'] for br in tr.army.alive_brawlers]))) for
+                f"""Average Health: {[(tr.name, int(np.mean([br.stats['life']['value'] for
+                                                             br in tr.army.alive_brawlers]))) for
                                       tr in self.alive_tribes]}""")
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
