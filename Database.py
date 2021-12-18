@@ -34,7 +34,6 @@ class DatabaseManager(metaclass=Singleton):
         else:
             print('Unkown error with MongoDB')
 
-
     def get_gods(self, tribe_key: str = ""):
         query = {"tier": 0}
 
@@ -54,6 +53,12 @@ class DatabaseManager(metaclass=Singleton):
     def get_general_configuration(self):
         query = {"custom_id": "general_configuration"}
         return self.config_collection.find(query)[0], query
+
+    def get_abilities(self, query=None):
+        if query is None:
+            query = {}
+
+        return self.abilities_collection.find(query)
 
 
 # Tribe Manager

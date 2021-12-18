@@ -20,7 +20,7 @@ class AbilityManager(metaclass=Singleton):
         #  pero si ha cambiado algo en la config (cualquier stat) no estará actualizado
         print("Loading Abilities...")
 
-        abilities = db_manager.abilities_collection.find()
+        abilities = db_manager.get_abilities()
 
         # Load abilities from BD
         for ability in abilities:
