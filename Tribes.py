@@ -105,6 +105,7 @@ class Brawler:
         print(f'Picked ability: {ab_tuple[0].base_ability.name}')
 
         # TODO [PreAlpha 0.2]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
+        #  Check el ['stats']['probability'], si existe, es disyuntiva y hay que ejecutar una aleatoria basada en las probs
         for ability in ab_tuple:
             print(f'Now applying: {ability}')
             ability.cast_ability(victim, alive_tribes)

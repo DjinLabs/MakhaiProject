@@ -6,8 +6,6 @@
       <change beforePath="$PROJECT_DIR$/Abilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/Abilities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Battle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/initializations.py" beforeDir="false" afterPath="$PROJECT_DIR$/initializations.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +112,10 @@
       <workItem from="1639245849534" duration="68000" />
       <workItem from="1639245931504" duration="13537000" />
       <workItem from="1639324482344" duration="31098000" />
-      <workItem from="1639482624878" duration="15879000" />
+      <workItem from="1639482624878" duration="16585000" />
+      <workItem from="1639587655400" duration="288000" />
+      <workItem from="1639587953162" duration="2157000" />
+      <workItem from="1639849489516" duration="1437000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -312,7 +313,14 @@
       <option name="project" value="LOCAL" />
       <updated>1639484078167</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Abilities partially implemented for preAlpha 0.2">
+      <created>1639507356545</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1639507356545</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -348,7 +356,8 @@
     <MESSAGE value="minor changes for MongoDB on Atlas" />
     <MESSAGE value="- Implementar la selección y carga de habilidades desde BD para Soldiers y Champions ✅ &#10;- Implementación de las Habilidades que actualmente están en BD (i.e., deserializar las habilidades desde BD e implementación de la lógica de cada habilidad) ✅" />
     <MESSAGE value="minor fixes for preAlpha 0.2" />
-    <option name="LAST_COMMIT_MESSAGE" value="minor fixes for preAlpha 0.2" />
+    <MESSAGE value="Abilities partially implemented for preAlpha 0.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Abilities partially implemented for preAlpha 0.2" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TeamFightTokens$run.coverage" NAME="run Coverage Results" MODIFIED="1636933481477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

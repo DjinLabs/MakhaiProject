@@ -51,6 +51,7 @@ class BattleManager(metaclass=Singleton):
             if victim.tier_key in tiers and victim.tribe.key in tribes and victim.sex in sexes:
                 filtered_pool.append(victim)
 
+        # TODO: Gestionar lo de 'all' en 'target_information': {"number": {"range":[], "value": "all"},}
         if isinstance(number, list):
             if len(number) > 1:
                 pct = uniform(number[0], number[1])
@@ -79,6 +80,7 @@ class BattleManager(metaclass=Singleton):
             if ally.tier_key in tiers and ally.sex in sexes:
                 filtered_pool.append(ally)
 
+        # TODO: Gestionar lo de 'all' en 'target_information': {"number": {"range":[], "value": "all"},}
         if isinstance(number, list):
             if len(number) > 1:
                 pct = uniform(number[0], number[1])

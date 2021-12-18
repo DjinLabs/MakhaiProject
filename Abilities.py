@@ -99,6 +99,7 @@ class Ability:
         self.brawler = None
         self.target = []
 
+    # TODO: MOVIDAAAAAAAAAAAAA, LOS TARGET VAN POR HABILIDAD QUE ENGLOBA NO HABILIDAD INDIVIDUAL, NO PUEDEN CAMBIAR!!
     def get_target(self, victim, alive_tribes):
         """
         At battle loop, with the self.target_info information
