@@ -18,6 +18,7 @@ class DatabaseManager(metaclass=Singleton):
         # DB Initialization
         self.initialize_connection()
 
+
     def initialize_connection(self):
         if self.client is None:
             print('Connecting to MongoDB...')

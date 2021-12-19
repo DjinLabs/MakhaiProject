@@ -1,7 +1,4 @@
 import warnings
-
-import streamlit as st
-
 from Battle import battle_manager
 from Singleton import Singleton
 from Database import db_manager
