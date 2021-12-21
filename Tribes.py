@@ -21,7 +21,7 @@ class TribeManager(metaclass=Singleton):
             for tribe_key, tribe_name in tribes_dict.items():
                 self.tribes.append(Tribe(tribe_key, tribe_name))
             print('Assigning slots...')
-            battle_manager.get_slots(tribe_manager)  # @ TODO [preAlpha 0.3]: Probablemente quitar de aqui
+            battle_manager.get_slots(tribe_manager)  # @ TODO [preAlpha 0.3][Slots]: Probablemente quitar de aqui
 
     def create_armies(self):
         with st.spinner('Spawning armies...'):
@@ -49,7 +49,7 @@ class Brawler:
 
         # Buff / Debuff
         # Objeto interno: {'shift': 0, 'rounds': 0}
-        # TODO [preAlpha 0.3]: Creo que una manera de gestionar los cambios aditivos sería añadir un attribute "additive" o
+        # TODO [preAlpha 0.3][Additive]: Creo que una manera de gestionar los cambios aditivos sería añadir un attribute "additive" o
         #  "cummulative" en este objeto (e.g., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda)
         #  obviamente también en la ability así que habrá que cambiar en BD y en AlterStat
         self.buff = {
@@ -63,17 +63,17 @@ class Brawler:
 
         # Invulnerability and Excllusion
         self.invulnerability = {
-            # TODO [preAlpha 0.2]: Check de este attribute por cada vez que se le haga daño a un brawler
+            # TODO [preAlpha 0.2][Invulnerability]: Check de este attribute por cada vez que se le haga daño a un brawler
             'invulnerable': False,
             'invulnerable_to': [],
             'rounds': 0,
         }
         self.exclusion = {
-            # TODO [preAlpha 0.2]: Check de este attribute por cada cosa que se le haga algo un brawler, también para ser elegido como atacante o víctima etc
+            # TODO [preAlpha 0.2][Exclusion]: Check de este attribute por cada cosa que se le haga algo un brawler, también para ser elegido como atacante o víctima etc
             'excluded': False,
             'rounds': 0,
         }
-        self.skip_abilities = False  # TODO [preAlpha 0.2]: Check de este attribute por cada habilidad a ejecutar, se resetea al final de ronda
+        self.skip_abilities = False  # TODO [preAlpha 0.2][Skip]: Check de este attribute por cada habilidad a ejecutar, se resetea al final de ronda
 
         # Stats
         self.stats = dict()
@@ -100,11 +100,11 @@ class Brawler:
 
         print(f'EXECUTE ABILITIES: {self.name} with abilities: {[a[0].base_ability.name for a in self.abilities]}')
         ab_tuple = random.choice(
-            self.abilities)  # TODO [PreAlpha 0.3]: Aplicar softmax a la probabilidad de pick de las habilidades y tal
+            self.abilities)  # TODO [PreAlpha 0.3][Selection probability]: Aplicar softmax a la probabilidad de pick de las habilidades y tal
 
         print(f'Picked ability: {ab_tuple[0].base_ability.name}')
 
-        # TODO [PreAlpha 0.2]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
+        # TODO [PreAlpha 0.2][Disyuntive]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
         #  Check el ['stats']['probability'], si existe, es disyuntiva y hay que ejecutar una aleatoria basada en las probs
         for ability in ab_tuple:
             print(f'Now applying: {ability}')
@@ -146,7 +146,7 @@ class Champion(Brawler):
         num_negative = 0
         while len(self.abilities) < 3:
             ch = pool[choice(len(pool),
-                             replace=False)]  # TODO [PreAlpha 0.3]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
+                             replace=False)]  # TODO [PreAlpha 0.3][Pick probability]: Ahora con distribución uniforme, luego usar softmax y args p tal que p=[x,y,z]
             for c in ch:
                 c.base_ability.brawler = self
             if ch[0].base_ability.positive or num_negative < 1:
@@ -396,7 +396,7 @@ class Army:
             return random.choice(self.alive_brawlers)
 
     def depose_brawler(self, brawler: Brawler):
-        # TODO [preAlpha 0.3]: Gestionar acciones en diferido a la muerte del brawler
+        # TODO [preAlpha 0.3][Diferido en muerte]: Gestionar acciones en diferido a la muerte del brawler
         #  (i.e., Refuse Treatment: Tu salud empieza a deteriorarse a X% cada ronda.
         #  Cuando mueras, todos los punks ganan Y% en todas las habilidades.)
         self.alive_brawlers.remove(brawler)

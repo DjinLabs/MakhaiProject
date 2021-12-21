@@ -145,7 +145,7 @@ class BattleManager(metaclass=Singleton):
             self.round_number += 1
             print(f'Round {self.round_number}')
             # For each slot
-            for tribe in tribe_manager.tribes:  # TODO [preAlpha 0.3]: Handle better the slots and battle order with BattleManager
+            for tribe in tribe_manager.tribes:  # TODO [preAlpha 0.3][slots]: Handle better the slots and battle order with BattleManager
                 # Init round setup
                 self.attacker = tribe
 
@@ -176,7 +176,7 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 
-            # TODO [preAlpha 0.3]. Se reubican aleatoriamente las tribus en los slots.
+            # TODO [preAlpha 0.3][slots]: Se reubican aleatoriamente las tribus en los slots.
 
         if len(self.alive_tribes) == 1:
             cols[0].code(f'Event: {"End"}'), cols[1].code(

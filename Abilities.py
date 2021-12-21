@@ -77,7 +77,8 @@ class AbilityManager(metaclass=Singleton):
                                            tier=ability['tier'], target_info=target_info)
 
                     new_ability.append(
-                        InvulnerabilityAbility(rounds=stats['rounds'], base_ability=base_ability), )
+                        InvulnerabilityAbility(rounds=stats['rounds'], invulnerable_to=stats['rounds'],
+                                               base_ability=base_ability), )
                 else:
                     warnings.warn(f"Ability type not implemented: {ab_type}")
 
@@ -92,11 +93,11 @@ class Ability:
         self.tribe: str = tribe
         self.tier: int = tier
         self.target_info: dict = target_info
-        self.executed: bool = False  # TODO [PreAlpha 0.3]: Para acciones en diferido (e.g., Cuando mueras, todos los punks ganan Y%
+        self.executed: bool = False  # TODO [PreAlpha 0.3][Diferido]: Para acciones en diferido (e.g., Cuando mueras, todos los punks ganan Y%
         self.brawler = None
         self.target = []
 
-    # TODO: MOVIDAAAAAAAAAAAAA, LOS TARGET VAN POR HABILIDAD QUE ENGLOBA NO HABILIDAD INDIVIDUAL, NO PUEDEN CAMBIAR!!
+    # TODO: BUGGGG!!! MOVIDAAAAAAAAAAAAA, LOS TARGET VAN POR HABILIDAD QUE ENGLOBA NO HABILIDAD INDIVIDUAL, NO PUEDEN CAMBIAR!!
     def get_target(self, victim, alive_tribes):
         """
         At battle loop, with the self.target_info information
@@ -233,10 +234,12 @@ class InvulnerabilityAbility:
     # TODO [PreAlpha 0.3]: OJO porque si la Invulnerabilidad puede ser condicional hay que añadir un atributo para marcar la condicionalidad
     # https://docs.google.com/document/d/1oioVqQFppw7PkU3VXzyZ8YUdNjuzB84E/edit?disco=AAAATEMQpi8
     # Para eso ya tenemos el atributo "invulnerable_to" del att "invulnerability" de los Brawlers
+    # Cargar el invulnerability_to desde el target_enemies y tal
 
-    def __init__(self, rounds: int, base_ability: Ability):
+    def __init__(self, rounds: int, invulnerable_to: list, base_ability: Ability):
         self.base_ability = base_ability
         self.rounds: int = rounds
+        self.invulnerable_to: list = []
 
     def verbose(self):
         print(f'Casting {self.base_ability.name} ability invulnerates {[t.name for t in self.base_ability.target]} for'
@@ -248,6 +251,7 @@ class InvulnerabilityAbility:
         for target in self.base_ability.target:
             target.invulnerability['invulnerable'] = True
             target.invulnerability['rounds'] = self.rounds
+            target.invulnerability['invulnerable_to'] = self.invulnerable_to # TODO: Cambiar de keys a Object Tribe
         self.base_ability.target = []  # Clear targets
 
 

@@ -172,11 +172,11 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
     st.markdown(f'##### General')
     with st.form(f'abilities_config_form_{tribe.key}'):
-        ab_tup['pick_probability'] = st.slider('Pick probability', 0.0, 1.0, step=0.01, value=0.1, key=f'pick_prob_{ab_id}')
+        ab_tup['pick_probability'] = st.slider('Pick probability', 0.0, 1.0, step=0.01, value=0.1,
+                                               key=f'pick_prob_{ab_id}')
         if st.form_submit_button('Save'):
             db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
 
-    submitted = False
     for k, (type, stats, effects, target_info, related_brwlrs) in enumerate(zip(ab_tup["type"],
                                                                                 ab_tup["stats"],
                                                                                 ab_tup["effects"],
@@ -194,9 +194,6 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
             with cols[0]:
                 with st.form(f'stat_config_form_{k}_{ab_id}'):
-                    if submitted:
-                        st.experimental_rerun()
-                        submitted = False
 
                     effects['stat'] = st.selectbox('Stat', options=stats_dict.values(),
                                                    index=list(stats_dict.keys()).index(effects['stat']),
@@ -214,14 +211,10 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                         elif effects['stat'] == 'hit_probability' or effects['stat'] == 'evade_probability':
                             ab_tup['stats'][k]['shift'] = 0.1
 
-                        print("Storing to BD:" + effects['stat'], ab_tup['stats'][k]['shift'])
                         db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                        submitted = True
+                        st.experimental_rerun()
 
             with cols[1]:
-                if submitted:
-                    st.experimental_rerun()
-                    submitted = False
 
                 with st.form(f'shift_config_form_{k}_{ab_id}'):
 
@@ -243,12 +236,9 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
                     if st.form_submit_button('Save'):
                         db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                        submitted = True
+                        st.experimental_rerun()
 
             with cols[2]:
-                if submitted:
-                    st.experimental_rerun()
-                    submitted = False
 
                 with st.form(f'rounds_config_form_{k}_{ab_id}'):
                     stats['rounds'] = st.select_slider('Rounds', options=list(range(1, 20)) + ['All'],
@@ -258,12 +248,9 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                         stats['rounds'] = -1
                     if st.form_submit_button('Save'):
                         db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                        submitted = True
+                        st.experimental_rerun()
 
         elif type == 'DirectDamage':
-            if submitted:
-                st.experimental_rerun()
-                submitted = False
 
             with st.form(f'damage_config_form_{k}_{ab_id}'):
 
@@ -273,14 +260,28 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
                 if st.form_submit_button('Save'):
                     db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                    submitted = True
+                    st.experimental_rerun()
+
+
         elif type == 'Kill':
             pass
 
-        elif type == 'Exclusion' or type == 'Skip' or type == 'Invulnerability':
-            if submitted:
-                st.experimental_rerun()
-                submitted = False
+        elif type == 'Invulnerability':
+
+            with st.form(f'invulnerability_config_form_{k}_{ab_id}'):
+                selected_tribes = st.multiselect('Invulnerable from', [t.name.title() for t in tribe_manager.tribes],
+                                                 default=[st.session_state['GLOBAL_TRIBES_DICT'][t] for t in
+                                                          stats['to']],
+                                                 key=f'invulnerable_from_tribes_{k}_{ab_id}')
+                idxs = [list(st.session_state['GLOBAL_TRIBES_DICT'].values()).index(s) for s in selected_tribes]
+                selected_tribes = [list(st.session_state['GLOBAL_TRIBES_DICT'].keys())[i] for i in idxs]
+                stats['to'] = selected_tribes
+
+                if st.form_submit_button('Save'):
+                    db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
+                    st.experimental_rerun()
+
+        elif type == 'Exclusion' or type == 'Skip':
 
             with st.form(f'rounds_config_form_{k}_{ab_id}'):
                 stats['rounds'] = st.select_slider('Rounds', options=list(range(1, 20)) + ['All'],
@@ -290,7 +291,7 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                     stats['rounds'] = -1
                 if st.form_submit_button('Save'):
                     db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                    submitted = True
+                    st.experimental_rerun()
 
         else:
             warnings.warn(f"Ability type not implemented: {type}")
@@ -313,9 +314,6 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
             target_info['self'] = False
 
             with st.form(f'target_info_form_{k}_{ab_id}'):
-                if submitted:
-                    st.experimental_rerun()
-                    submitted = False
 
                 if select_target == 'Enemies':
 
@@ -339,7 +337,6 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                     idxs = [list(st.session_state['GLOBAL_TIERS'].values()).index(t.lower()) for t in selected_tiers]
                     target_info['enemies']['tiers'] = idxs
 
-                    print(target_info['enemies']['sex'])
                     selected_sex = st.multiselect('Sex', sex_dict.values(),
                                                   default=[sex_dict[s] for s in target_info['enemies']['sex']],
                                                   key=f'enemies_sex_{k}_{ab_id}')
@@ -392,7 +389,6 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                     idxs = [list(st.session_state['GLOBAL_TIERS'].values()).index(t.lower()) for t in selected_tiers]
                     target_info['allies']['tiers'] = idxs
 
-                    print(target_info['allies']['sex'])
                     selected_sex = st.multiselect('Sex', sex_dict.values(),
                                                   default=[sex_dict[s] for s in target_info['allies']['sex']],
                                                   key=f'allies_sex_{k}_{ab_id}')
@@ -432,7 +428,7 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
                 if st.form_submit_button('Save'):
                     db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
-                    submitted = True
+                    st.experimental_rerun()
 
         else:
             target_info['self'] = True
@@ -440,4 +436,5 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
             if save:
                 db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
 
-            st.markdown('----')
+            if k + 1 < len(ab_tup["type"]):
+                st.markdown('----')
