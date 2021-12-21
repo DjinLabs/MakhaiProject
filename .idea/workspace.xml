@@ -4,9 +4,6 @@
     <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Abilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/Abilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Battle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +114,7 @@
       <workItem from="1639587655400" duration="288000" />
       <workItem from="1639587953162" duration="2157000" />
       <workItem from="1639849489516" duration="36061000" />
-      <workItem from="1640051613455" duration="5121000" />
+      <workItem from="1640051613455" duration="6141000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -343,7 +340,14 @@
       <option name="project" value="LOCAL" />
       <updated>1639909742865</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes">
+      <created>1640057097660</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1640057097660</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -383,7 +387,8 @@
     <MESSAGE value="Added TODOs" />
     <MESSAGE value="Added display of abilities from configuration_screen.py for Champs and Soldiers" />
     <MESSAGE value="Added ability configuration for Champs and Soldiers" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added ability configuration for Champs and Soldiers" />
+    <MESSAGE value="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TeamFightTokens$run.coverage" NAME="run Coverage Results" MODIFIED="1636933481477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

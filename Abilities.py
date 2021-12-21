@@ -231,15 +231,10 @@ class InvulnerabilityAbility:
     El brawler targeteado no puede recibir daño durante el número de rondas indicado
     """
 
-    # TODO [PreAlpha 0.3]: OJO porque si la Invulnerabilidad puede ser condicional hay que añadir un atributo para marcar la condicionalidad
-    # https://docs.google.com/document/d/1oioVqQFppw7PkU3VXzyZ8YUdNjuzB84E/edit?disco=AAAATEMQpi8
-    # Para eso ya tenemos el atributo "invulnerable_to" del att "invulnerability" de los Brawlers
-    # Cargar el invulnerability_to desde el target_enemies y tal
-
     def __init__(self, rounds: int, invulnerable_to: list, base_ability: Ability):
         self.base_ability = base_ability
         self.rounds: int = rounds
-        self.invulnerable_to: list = []
+        self.invulnerable_to: list = invulnerable_to
 
     def verbose(self):
         print(f'Casting {self.base_ability.name} ability invulnerates {[t.name for t in self.base_ability.target]} for'
@@ -251,7 +246,7 @@ class InvulnerabilityAbility:
         for target in self.base_ability.target:
             target.invulnerability['invulnerable'] = True
             target.invulnerability['rounds'] = self.rounds
-            target.invulnerability['invulnerable_to'] = self.invulnerable_to # TODO: Cambiar de keys a Object Tribe
+            target.invulnerability['invulnerable_to'] = self.invulnerable_to
         self.base_ability.target = []  # Clear targets
 
 
