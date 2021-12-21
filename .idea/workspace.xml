@@ -4,6 +4,10 @@
     <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Abilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/Abilities.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Battle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fight_simulator_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_simulator_screen.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +118,7 @@
       <workItem from="1639587655400" duration="288000" />
       <workItem from="1639587953162" duration="2157000" />
       <workItem from="1639849489516" duration="36061000" />
-      <workItem from="1640051613455" duration="6141000" />
+      <workItem from="1640051613455" duration="23845000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -347,7 +351,14 @@
       <option name="project" value="LOCAL" />
       <updated>1640057097660</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes">
+      <created>1640058098596</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1640058098597</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -13,8 +13,6 @@ class AbilityManager(metaclass=Singleton):
         self.load_abilities()
 
     def load_abilities(self):
-        # TODO [PreAlpha 0.2]: Creo que hay que llamarla junto con cualquier CreateArmies porque al spawneaer una unidad se pickean
-        #  pero si ha cambiado algo en la config (cualquier stat) no estará actualizado
         print("Loading Abilities...")
 
         abilities = db_manager.get_abilities()
@@ -97,23 +95,27 @@ class Ability:
         self.brawler = None
         self.target = []
 
-    # TODO: BUGGGG!!! MOVIDAAAAAAAAAAAAA, LOS TARGET VAN POR HABILIDAD QUE ENGLOBA NO HABILIDAD INDIVIDUAL, NO PUEDEN CAMBIAR!!
-    def get_target(self, victim, alive_tribes):
-        """
-        At battle loop, with the self.target_info information
-        :return: self.target correctly filled
-        """
-        if self.target_info['self']:  # It's me!
-            self.target.append(self.brawler)
-        else:
-            for enemies in self.target_info['enemies']:
-                if enemies['number'] != 0:  # Get enemies
-                    self.target = battle_manager.get_random_enemies(tiers=enemies['tiers'], tribes=enemies['tribes'],
-                                                                    sexes=enemies['sex'], number=enemies['number'])
-            for allies in self.target_info['allies']:
-                if allies['number'] != 0:  # Get allies
-                    self.target = battle_manager.get_random_allies(tiers=allies['tiers'], sexes=allies['sex'],
-                                                                   number=allies['number'])
+    # def get_target(self, victim, alive_tribes): REMOVERRRRRRRRRRRR
+    #     """
+    #     At battle loop, with the self.target_info information
+    #     :return: self.target correctly filled
+    #     """
+    #     print(self.target_info)
+    #     for target in self.target_info:
+    #         print(target)
+    #         if target['self']:  # It's me!
+    #             self.target.append(self.brawler)
+    #         else:
+    #             print(target['enemies'])
+    #             if target['enemies']['number']['value'] != 0:  # Get enemies
+    #                 self.target = battle_manager.get_random_enemies(tiers=target['enemies']['tiers'],
+    #                                                                 tribes=target['enemies']['tribes'],
+    #                                                                 sexes=target['enemies']['sex'],
+    #                                                                 number=target['enemies']['number'])
+    #             if target['allies']['number']['value'] != 0:  # Get allies
+    #                 self.target = battle_manager.get_random_allies(tiers=target['allies']['tiers'],
+    #                                                                sexes=target['allies']['sex'],
+    #                                                                number=target['allies']['number'])
 
     def cast_ability(self):
         pass
@@ -129,7 +131,6 @@ class DirectDamageAbility:
               f'to {[t.name for t in self.base_ability.target]}')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.stats['life']['value'] -= self.damage
@@ -145,7 +146,7 @@ class AlterStatAbility:
         self.base_ability = base_ability
         self.shift = shift
         self.stat: str = stat
-        self.rounds: int = rounds
+        self.rounds: int = int(rounds)
 
     def verbose(self):
         print(
@@ -153,10 +154,8 @@ class AlterStatAbility:
             f'to {[t.name for t in self.base_ability.target]}')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
-            print(self.shift, type(self.shift))
             target.stats[self.stat]['value'] += self.shift if self.shift != 'max' else target.stats[self.stat]['max']
             target.stats[self.stat]['value'] = min(target.stats[self.stat]['max'],
                                                    max(target.stats[self.stat]['value'], 0))
@@ -174,10 +173,9 @@ class KillAbility:
         print(f'Casting {self.base_ability.name} ability kills {[t.name for t in self.base_ability.target]}')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
-            target.stats['life'] = 0
+            target.stats['life']['value'] = 0
 
         self.base_ability.target = []  # Clear targets
 
@@ -196,7 +194,6 @@ class ExclusionAbility:
               f' {self.rounds} rounds')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.exclusion['excluded'] = True
@@ -219,7 +216,6 @@ class SkipAbility:
             f'for {[t.name for t in self.base_ability.target]}')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.skip_abilities = True
@@ -241,7 +237,6 @@ class InvulnerabilityAbility:
               f' {self.rounds} rounds')
 
     def cast_ability(self, victim, alive_tribes):
-        self.base_ability.get_target(victim, alive_tribes)
         self.verbose()
         for target in self.base_ability.target:
             target.invulnerability['invulnerable'] = True

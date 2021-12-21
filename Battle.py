@@ -51,14 +51,11 @@ class BattleManager(metaclass=Singleton):
             if victim.tier_key in tiers and victim.tribe.key in tribes and victim.sex in sexes:
                 filtered_pool.append(victim)
 
-        # TODO: Gestionar lo de 'all' en 'target_information': {"number": {"range":[], "value": "all"},}
-        if isinstance(number, list):
-            if len(number) > 1:
-                pct = uniform(number[0], number[1])
-            else:
-                pct = number[0]
-            number = round(len(filtered_pool) * pct)
-        print(len(filtered_pool), number)
+        if isinstance(number, float):  # If it is percentage, compute absolute value
+            number = round(len(filtered_pool) * number)
+        elif number == 'all':
+            number = len(filtered_pool)
+
         victims.extend(sample(filtered_pool, min(number, len(filtered_pool))))
 
         return victims
@@ -80,14 +77,11 @@ class BattleManager(metaclass=Singleton):
             if ally.tier_key in tiers and ally.sex in sexes:
                 filtered_pool.append(ally)
 
-        # TODO: Gestionar lo de 'all' en 'target_information': {"number": {"range":[], "value": "all"},}
-        if isinstance(number, list):
-            if len(number) > 1:
-                pct = uniform(number[0], number[1])
-            else:
-                pct = number[0]
-            number = round(len(filtered_pool) * pct)
-        print(len(filtered_pool), number)
+        if isinstance(number, float):  # If it is percentage, compute absolute value
+            number = round(len(filtered_pool) * number)
+        elif number == 'all':
+            number = len(filtered_pool)
+
         allies.extend(sample(filtered_pool, min(number, len(filtered_pool))))
 
         return allies
@@ -137,11 +131,11 @@ class BattleManager(metaclass=Singleton):
         if brwlr.stats['life']['value'] > 0:
             brwlr.healing()
 
-    def main_battle_loop(self, tribe_manager):
+    def main_battle_loop(self, tribe_manager, one_round=True, next_round=True):
         print('Main battle loop starting...')
         cols = st.columns([1, 5])
 
-        while len(self.alive_tribes) > 1:  # Mientras más de una Tribu esté viva
+        while len(self.alive_tribes) > 1 and next_round:  # Mientras más de una Tribu esté viva
             self.round_number += 1
             print(f'Round {self.round_number}')
             # For each slot
@@ -176,6 +170,9 @@ class BattleManager(metaclass=Singleton):
 
             cols[0].markdown("-------------------"), cols[1].markdown("-------------------")
 
+            if one_round:
+                next_round = False
+
             # TODO [preAlpha 0.3][slots]: Se reubican aleatoriamente las tribus en los slots.
 
         if len(self.alive_tribes) == 1:
@@ -183,8 +180,8 @@ class BattleManager(metaclass=Singleton):
                 f"""Winner Tribe: {[tr.name for tr in self.alive_tribes]}""")
 
     def reset(self, tribe_manager):
-        if tribe_manager.create_armies():
-            self.setup_battle(tribe_manager)
+        tribe_manager.create_armies()
+        self.setup_battle(tribe_manager)
 
 
 # Instantiate Singletons

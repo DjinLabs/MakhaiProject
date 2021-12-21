@@ -1,3 +1,5 @@
+import warnings
+
 from Battle import battle_manager
 from Database import db_manager
 from Singleton import Singleton
@@ -27,7 +29,8 @@ class TribeManager(metaclass=Singleton):
         with st.spinner('Spawning armies...'):
             for tribe in self.tribes:
                 tribe.army.spawn_army(tribe)
-        return True
+        with st.spinner('Loading abilities...'):
+            ability_manager.load_abilities()  # TODO: Comprobar si esta llamada es necesaria
 
 
 class Tribe:
@@ -102,13 +105,98 @@ class Brawler:
         ab_tuple = random.choice(
             self.abilities)  # TODO [PreAlpha 0.3][Selection probability]: Aplicar softmax a la probabilidad de pick de las habilidades y tal
 
-        print(f'Picked ability: {ab_tuple[0].base_ability.name}')
-
         # TODO [PreAlpha 0.2][Disyuntive]: Gestionar las habilidades dobles que son disyuntivas con probabilidades y las que son conjuntivas
         #  Check el ['stats']['probability'], si existe, es disyuntiva y hay que ejecutar una aleatoria basada en las probs
+
+        print(f'Picked Ability: {ab_tuple[0].base_ability.name}')
+        self.get_ability_targets(ab_tuple)
+
+
         for ability in ab_tuple:
             print(f'Now applying: {ability}')
             ability.cast_ability(victim, alive_tribes)
+
+    def get_ability_targets(self, ab_tuple):
+
+        abilities = [ab for ab in ab_tuple]
+        targets_infos = [ab.base_ability.target_info for ab in ab_tuple]
+
+        selves = [ti['self'] for ab, ti in zip(abilities, targets_infos) if ti['self']]
+        selves_abilities = [ab for ab, ti in zip(abilities, targets_infos) if ti['self']]
+
+        enemies, enemies_abilities = [], []
+        for ab, ti in zip(abilities, targets_infos):
+            if isinstance(ti['enemies']['number']['value'], str):
+                if ti['enemies']['number']['value'] == 'max':
+                    enemies.append(ti['enemies'])
+                    enemies_abilities.append(ab)
+            else:
+                if ti['enemies']['number']['value'] > 0:
+                    enemies.append(ti['enemies'])
+                    enemies_abilities.append(ab)
+
+        allies, allies_abilities = [], []
+        for ab, ti in zip(abilities, targets_infos):
+            if isinstance(ti['allies']['number']['value'], str):
+                if ti['allies']['number']['value'] == 'max':
+                    allies.append(ti['allies'])
+                    enemies_abilities.append(ab)
+            else:
+                if ti['allies']['number']['value'] > 0:
+                    allies.append(ti['allies'])
+                    enemies_abilities.append(ab)
+
+        # Self
+        for a, s in zip(selves_abilities, selves):
+            if s:  # It's me!
+                a.base_ability.target.append(self)
+
+        # Enemies
+        if len(enemies) > 0 and all([e['number']['value'] != 0 for e in enemies]):  # Shared enemies
+
+            if (all(isinstance(e['number']['value'], int) for e in enemies) or all(
+                    isinstance(e['number']['value'], float) for e in enemies)) and all(
+                e['tiers'] == enemies[0]['tiers'] for e in enemies) and all(
+                e['tribes'] == enemies[0]['tribes'] for e in enemies) and all(
+                e['sex'] == enemies[0]['sex'] for e in enemies):
+
+                shared_targets = battle_manager.get_random_enemies(tiers=enemies[0]['tiers'],
+                                                                   tribes=enemies[0]['tribes'],
+                                                                   sexes=enemies[0]['sex'],
+                                                                   number=enemies[0]['number']['value'])
+                for ab in enemies_abilities:
+                    ab.base_ability.target.extend(shared_targets)
+            else:
+                warnings.warn('ERROR! Mismatching information for abilities targets!'
+                              f'Check configs for: {abilities[0].base_abality.name}')
+
+        elif all([e['number']['value'] > 0 for e in enemies]):  # Non-shared enemies
+
+            for ab, e in zip(enemies_abilities, enemies):
+                ab.base_ability.target.extend(battle_manager.get_random_enemies(tiers=e['tiers'], tribes=e['tribes'],
+                                                                                sexes=e['sex'],
+                                                                                number=e['number']['value']))
+
+        # Allies
+        if len(allies) > 0 and all([a['number']['value'] != 0 for a in allies]):  # Shared allies
+
+            if (all(isinstance(a['number']['value'], int) for a in allies) or all(
+                    isinstance(a['number']['value'], float) for a in allies)) and all(
+                a['tiers'] == allies[0]['tiers'] for a in allies) and all(a['sex'] == allies[0]['sex'] for a in allies):
+
+                shared_targets = battle_manager.get_random_allies(tiers=allies[0]['tiers'], sexes=allies[0]['sex'],
+                                                                  number=allies[0]['number']['value'])
+
+                for ab in allies_abilities:
+                    ab.base_ability.target.extend(shared_targets)
+            else:
+                warnings.warn('ERROR! Mismatching information for abilities targets!'
+                              f'Check configs for: {abilities[0].base_abality.name}')
+
+        elif all([a['number']['value'] > 0 for a in allies]):  # Non-shared allies
+            for ab, a in zip(allies_abilities, enemies):
+                ab.base_ability.target.extend(battle_manager.get_random_allies(tiers=a['tiers'], sexes=a['sex'],
+                                                                               number=a['number']['value']))
 
     def healing(self):
         self.stats['life']['value'] += max(self.stats['heal']['value'], self.stats['heal']['value'])

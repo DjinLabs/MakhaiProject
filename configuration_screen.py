@@ -254,7 +254,7 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
             with st.form(f'damage_config_form_{k}_{ab_id}'):
 
-                stats['damage'] = st.select_slider('Damage', options=list(range(-100, 0)) + list(range(1, 101)),
+                stats['damage'] = st.select_slider('Damage', options=list(range(1, 101)),
                                                    value=float(stats['damage']),
                                                    key=f'damage_{k}_{ab_id}')
 
@@ -303,11 +303,24 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
         enemies_aux = target_info['enemies']
         allies_aux = target_info['allies']
 
-        select_target = st.selectbox('Target type', [k.title() for k in target_info.keys()], key=f'target_{k}_{ab_id}')
+        if target_info['self']:
+            idx = 0
+        elif target_info['enemies']['number']['value'] != 0:
+            idx = 1
+        else:
+            idx = 2
+        select_target = st.selectbox('Target type', [k.title() for k in target_info.keys()],
+                                     index=idx,
+                                     key=f'target_{k}_{ab_id}')
 
-        if select_target == 'Enemies' or select_target == 'Allies':
-            abs = st.checkbox('Select number of targets with absolute value',
+        use_absolute = dict()
+        if select_target == 'Enemies':
+            use_absolute['enemies'] = st.checkbox('Select number of targets with absolute value',
                               value=len(target_info['enemies']['number']['range']) == 0, key=f'abs_{k}_{ab_id}')
+        if select_target == 'Allies':
+            use_absolute['allies'] = st.checkbox('Select number of targets with absolute value',
+                              value=len(target_info['allies']['number']['range']) == 0, key=f'abs_{k}_{ab_id}')
+
 
         if select_target != 'Self':
 
@@ -346,7 +359,7 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
                     st.text('Number')
 
-                    if abs:
+                    if use_absolute['enemies']:
                         options = list(range(1, 101)) + ['All']
                         target_info['enemies']['number']['value'] = st.select_slider('Number of enemies',
                                                                                      options=options,
@@ -354,7 +367,10 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                                                                                      target_info['enemies']['number']
                                                                                      ['value'] if
                                                                                      target_info['enemies']['number']
-                                                                                     ['value'] != 0 else 1,
+                                                                                     ['value'] != 0 and isinstance(
+                                                                                         target_info['enemies'][
+                                                                                             'number']
+                                                                                         ['value'], int) else 1,
                                                                                      key=f'enemies_number_{k}_{ab_id}')
                     else:
                         if len(target_info['enemies']['number']['range']) == 0:
@@ -362,14 +378,16 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                             max_value = 1.0
                             value = (0.03, 0.06)
                         else:
-                            min_value = int(target_info['enemies']['number']['range'][0])
-                            max_value = int(target_info['enemies']['number']['range'][1])
-                            value = int(target_info['enemies']['number']['value'])
+                            min_value = 0.01
+                            max_value = 1.0
+                            value = [target_info['enemies']['number']['range'][0],
+                                     target_info['enemies']['number']['range'][1]]
 
                         target_info['enemies']['number']['range'] = st.slider('Number of enemies', min_value=min_value,
                                                                               max_value=max_value,
                                                                               value=value,
                                                                               key=f'enemies_number_{k}_{ab_id}')
+                        print(target_info['enemies']['number'])
                         target_info['enemies']['number']['value'] = round(random.uniform(
                             target_info['enemies']['number']['range'][0], target_info['enemies']['number']['range'][1]),
                             2)
@@ -398,7 +416,7 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
 
                     st.text('Number')
 
-                    if abs:
+                    if use_absolute['allies']:
                         options = list(range(1, 101)) + ['All']
                         target_info['allies']['number']['value'] = st.select_slider('Number of allies',
                                                                                     options=options,
@@ -406,7 +424,10 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                                                                                     target_info['allies']['number']
                                                                                     ['value'] if
                                                                                     target_info['allies']['number']
-                                                                                    ['value'] != 0 else 1,
+                                                                                    ['value'] != 0 and isinstance(
+                                                                                        target_info['allies'][
+                                                                                            'number']
+                                                                                        ['value'], int) else 1,
                                                                                     key=f'allies_number_{k}_{ab_id}')
                     else:
                         if len(target_info['allies']['number']['range']) == 0:
@@ -414,9 +435,10 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                             max_value = 1.0
                             value = (0.03, 0.06)
                         else:
-                            min_value = int(target_info['allies']['number']['range'][0])
-                            max_value = int(target_info['allies']['number']['range'][1])
-                            value = int(target_info['allies']['number']['value'])
+                            min_value = 0.01
+                            max_value = 1.0
+                            value = [target_info['allies']['number']['range'][0],
+                                     target_info['allies']['number']['range'][1]]
 
                         target_info['allies']['number']['range'] = st.slider('Number of allies', min_value=min_value,
                                                                              max_value=max_value,

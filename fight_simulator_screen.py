@@ -13,11 +13,20 @@ def fight_simulator_widget(tribe_manager):
     _ = [cols[i].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
          enumerate(tribe_manager.tribes)]
 
-    if cols[0].button('Fight'):
+    st.markdown('---')
+
+    cols = st.columns(6)
+
+    if cols[0].button('Full fight'):
 
         if len(battle_manager.alive_tribes) < 4:
             battle_manager.reset(tribe_manager)
 
         if len(battle_manager.alive_tribes) == 4:
-            battle_manager.setup_battle(tribe_manager)
-            battle_manager.main_battle_loop(tribe_manager)
+            battle_manager.main_battle_loop(tribe_manager, one_round=False)
+
+    elif cols[1].button('Next Round'):
+        if len(battle_manager.alive_tribes) == 0 or len(battle_manager.alive_tribes) == 1:
+            battle_manager.reset(tribe_manager)
+        if len(battle_manager.alive_tribes) > 1:
+            battle_manager.main_battle_loop(tribe_manager, one_round=True)
