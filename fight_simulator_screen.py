@@ -1,32 +1,34 @@
 import streamlit as st
 
-from Battle import battle_manager
+from Battle import battle_manager, Status
 
 
 def fight_simulator_widget(tribe_manager):
     st.subheader('Fight simulator')
 
-    # Show slots
-    st.markdown('### Randomly generated initial slots')
+    # Titles and fight controls
+    cols = st.columns([1, 1, 1, 1, 1])
+    cols[0].markdown('#### Initial slots')
+    cols[1].markdown('#### <span style="color:white">FOO</span>', unsafe_allow_html=True)
+    cols[2].markdown('#### <span style="color:white">FOO</span>', unsafe_allow_html=True)
+    cols[3].markdown('#### <span style="color:white">FOO</span>', unsafe_allow_html=True)
+    cols[4].markdown('#### Fight Controls')
 
-    cols = st.columns([1, 1, 1, 1, 1, 1])
+    # Show slots
     _ = [cols[i].metric(f'{v.name}', f'Slot: {v.slot}', None) for i, v in
          enumerate(tribe_manager.tribes)]
 
     st.markdown('---')
 
-    cols = st.columns(6)
+    print(f'STATUS: {battle_manager.status}')
+    if cols[4].button('Full fight') and battle_manager.status != Status.RUNNING:
+        battle_manager.run_battle(tribe_manager, one_round=False)
 
-    if cols[0].button('Full fight'):
+    if cols[4].button('Next Round') and battle_manager.status != Status.RUNNING:
+        battle_manager.run_battle(tribe_manager, one_round=True)
 
-        if len(battle_manager.alive_tribes) < 4:
-            battle_manager.reset(tribe_manager)
-
-        if len(battle_manager.alive_tribes) == 4:
-            battle_manager.main_battle_loop(tribe_manager, one_round=False)
-
-    elif cols[1].button('Next Round'):
-        if len(battle_manager.alive_tribes) == 0 or len(battle_manager.alive_tribes) == 1:
-            battle_manager.reset(tribe_manager)
-        if len(battle_manager.alive_tribes) > 1:
-            battle_manager.main_battle_loop(tribe_manager, one_round=True)
+    if cols[4].button('Pause') and battle_manager.status == Status.RUNNING:
+        # TODO: Si tenemos un método que simplemente haga el output de la batalla, lo suyo sería llamarlo aquí.
+        # de esta manera el pause funcionaría correctamente en el full fight y si se pulsa tras un next round
+        # no se va la visualización
+        battle_manager.run_battle(tribe_manager, one_round=True)

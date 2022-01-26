@@ -9,7 +9,7 @@ from Tribes import TribeManager
 p = inflect.engine()
 
 
-def configuration_widget(tribe_manager: TribeManager, tribes_dict: dict):
+def configuration_widget(tribe_manager: TribeManager):
     st.subheader('Configuration')
 
     general_config_expander()
@@ -204,12 +204,6 @@ def abilities_config_widget(tribe_manager, tribe, tier, abilities):
                     if st.form_submit_button('Save'):
 
                         ab_tup['effects'][k]['stat'] = effects['stat']
-                        if effects['stat'] == 'life' or effects['stat'] == 'base_attack' or effects['stat'] == 'heal':
-                            ab_tup['stats'][k]['shift'] = 10
-                        elif effects['stat'] == 'num_attacks':
-                            ab_tup['stats'][k]['shift'] = 1
-                        elif effects['stat'] == 'hit_probability' or effects['stat'] == 'evade_probability':
-                            ab_tup['stats'][k]['shift'] = 0.1
 
                         db_manager.abilities_collection.update_one({"_id": ab_tup["_id"]}, {"$set": ab_tup})
                         st.experimental_rerun()

@@ -156,12 +156,8 @@ class AlterStatAbility:
     def cast_ability(self, victim, alive_tribes):
         self.verbose()
         for target in self.base_ability.target:
-            target.stats[self.stat]['value'] += self.shift if self.shift != 'max' else target.stats[self.stat]['max']
-            target.stats[self.stat]['value'] = min(target.stats[self.stat]['max'],
-                                                   max(target.stats[self.stat]['value'], 0))
+            target.apply_alter_stat(self.stat, self.shift, self.rounds)
 
-            if self.rounds > 0:  # If temporary buff/debuff hold info on buff attr from Brawler for further revert
-                target.buff[self.stat].append({'shift': self.shift, 'rounds': self.rounds})
         self.base_ability.target = []  # Clear targets
 
 

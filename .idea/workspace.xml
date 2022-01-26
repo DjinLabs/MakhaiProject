@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="">
+    <list default="true" id="a22d3a97-ede3-480f-a616-880d767fcc35" name="Changes" comment="Continue implementing abilities in main loop battle">
+      <change afterPath="$PROJECT_DIR$/battle_dashboard_screen.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Abilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/Abilities.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Battle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Battle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tribes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tribes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configuration_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/configuration_screen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fight_simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_simulator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fight_simulator_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_simulator_screen.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -17,6 +19,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Unit Test" />
         <option value="Python Script" />
       </list>
     </option>
@@ -46,6 +49,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
   <component name="ProjectId" id="20mqZfQoois7vzUYFmgyoL7mMl4" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -58,9 +64,10 @@
     <property name="TODO_SCOPE" value="All Places" />
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python tests.Python tests in /home/ablanco061/Desktop/MakhaiProject/tests/Abilities_Tests.py">
     <configuration name="run" type="PythonConfigurationType" factoryName="Python">
       <module name="TeamFightTokens" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -81,6 +88,21 @@
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests in /home/ablanco061/Desktop/MakhaiProject/tests/Abilities_Tests.py" type="tests" factoryName="Autodetect" nameIsGenerated="true">
+      <module name="TeamFightTokens" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/Abilities_Tests.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
   </component>
@@ -118,7 +140,16 @@
       <workItem from="1639587655400" duration="288000" />
       <workItem from="1639587953162" duration="2157000" />
       <workItem from="1639849489516" duration="36061000" />
-      <workItem from="1640051613455" duration="23845000" />
+      <workItem from="1640051613455" duration="26232000" />
+      <workItem from="1640091181885" duration="1275000" />
+      <workItem from="1640182297856" duration="6000" />
+      <workItem from="1640189234618" duration="24000" />
+      <workItem from="1641832410624" duration="11435000" />
+      <workItem from="1642769424172" duration="7000" />
+      <workItem from="1642857281186" duration="6468000" />
+      <workItem from="1643015531587" duration="33000" />
+      <workItem from="1643134271519" duration="2471000" />
+      <workItem from="1643219421280" duration="5775000" />
     </task>
     <task id="LOCAL-00001" summary="Created Tribes.py for start with classing">
       <created>1636702779672</created>
@@ -358,7 +389,14 @@
       <option name="project" value="LOCAL" />
       <updated>1640058098597</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="Continue implementing abilities in main loop battle">
+      <created>1640077251092</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1640077251092</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -399,9 +437,12 @@
     <MESSAGE value="Added display of abilities from configuration_screen.py for Champs and Soldiers" />
     <MESSAGE value="Added ability configuration for Champs and Soldiers" />
     <MESSAGE value="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added &quot;invulnerability to&quot; to Invulnerability ability and some bug fixes" />
+    <MESSAGE value="Continue implementing abilities in main loop battle" />
+    <option name="LAST_COMMIT_MESSAGE" value="Continue implementing abilities in main loop battle" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/MakhaiProject$run.coverage" NAME="run Coverage Results" MODIFIED="1641834372736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/MakhaiProject$.coverage" NAME=" Coverage Results" MODIFIED="1641834402177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/TeamFightTokens$run.coverage" NAME="run Coverage Results" MODIFIED="1636933481477" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
